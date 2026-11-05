@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Data Quality Scanner v2.0 — Assessment Report</title>
+  <style>
+    :root {
+      --primary: #1e3a8a;
+      --primary-dark: #0f172a;
+      --primary-light: #3b82f6;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --purple: #7c3aed;
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --text: #1e293b;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      padding: 2rem;
+    }
+    .container { max-width: 1200px; margin: 0 auto; }
+    
+    /* Header */
+    .header {
+      background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+      color: white;
+      padding: 2.25rem 2.5rem;
+      border-radius: 12px;
+      margin-bottom: 2rem;
+      box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+    }
+    .header h1 { font-size: 2rem; font-weight: 800; margin-bottom: 0.25rem; letter-spacing: -0.02em; }
+    .header p { color: #93c5fd; font-size: 0.95rem; }
+    .meta-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 1rem;
+      margin-top: 1.5rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid rgba(255,255,255,0.15);
+    }
+    .meta-item { display: flex; flex-direction: column; }
+    .meta-label { font-size: 0.725rem; text-transform: uppercase; letter-spacing: 0.06em; color: #94a3b8; font-weight: 600; }
+    .meta-value { font-size: 1.05rem; font-weight: 700; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
+
+    /* Cards */
+    .card {
+      background: var(--card-bg);
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      padding: 1.75rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 1px 3px 0 rgba(0,0,0,0.05);
+    }
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.25rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .card-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .card-subtitle { font-size: 0.85rem; color: var(--text-muted); }
+
+    /* Score banner */
+    .score-container {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      gap: 2rem;
+      align-items: center;
+    }
+    @media(max-width: 840px) { .score-container { grid-template-columns: 1fr; } }
+    .score-box {
+      text-align: center;
+      padding: 2rem 1.5rem;
+      border-radius: 12px;
+      background: #f8fafc;
+      border: 2px solid var(--border);
+    }
+    .score-val { font-size: 3.75rem; font-weight: 800; line-height: 1; margin-bottom: 0.5rem; }
+    .score-cat {
+      display: inline-block;
+      padding: 0.35rem 1rem;
+      border-radius: 9999px;
+      font-weight: 700;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .cat-READY { background: #dcfce7; color: #166534; }
+    .cat-READY-WITH-MINOR-CLEANSING { background: #fef9c3; color: #854d0e; }
+    .cat-NEEDS-CLEANSING { background: #ffedd5; color: #9a3412; }
+    .cat-NOT-READY { background: #fee2e2; color: #991b1b; }
+
+    .issue-count-strip {
+      display: flex;
+      justify-content: center;
+      gap: 0.75rem;
+      margin-top: 1.25rem;
+      font-size: 0.775rem;
+      color: var(--text-muted);
+      flex-wrap: wrap;
+    }
+    .issue-count-pill {
+      padding: 0.2rem 0.5rem;
+      background: #ffffff;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+    }
+
+    /* Dimensions grid */
+    .dim-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; }
+    .dim-card {
+      background: #f8fafc;
+      padding: 1rem 1.25rem;
+      border-radius: 8px;
+      border-left: 4px solid var(--primary-light);
+      border: 1px solid var(--border);
+      border-left-width: 4px;
+    }
+    .dim-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 0.25rem; }
+    .dim-name { font-weight: 700; font-size: 0.9rem; }
+    .dim-score { font-size: 1.15rem; font-weight: 800; color: var(--primary); }
+    .dim-bar-bg { background: #e2e8f0; height: 7px; border-radius: 4px; overflow: hidden; margin-top: 0.4rem; margin-bottom: 0.4rem; }
+    .dim-bar-fill { height: 100%; background: var(--primary-light); }
+    .dim-exp { font-size: 0.75rem; color: var(--text-muted); line-height: 1.35; }
+
+    /* Issue Summary Stat Cards */
+    .stat-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+      gap: 1rem;
+    }
+    .stat-card {
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1rem;
+      text-align: center;
+    }
+    .stat-card.highlight {
+      background: #eff6ff;
+      border-color: #bfdbfe;
+    }
+    .stat-val { font-size: 1.75rem; font-weight: 800; color: var(--text); line-height: 1.2; }
+    .stat-card.highlight .stat-val { color: var(--primary); }
+    .stat-label { font-size: 0.75rem; font-weight: 600; text-transform: uppercase; color: var(--text-muted); margin-top: 0.25rem; }
+
+    /* Tables */
+    table { width: 100%; border-collapse: collapse; margin-top: 0.5rem; font-size: 0.85rem; }
+    th { background: #f8fafc; font-weight: 700; text-align: left; padding: 0.75rem 1rem; border-bottom: 2px solid var(--border); color: var(--text-muted); }
+    td { padding: 0.75rem 1rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+    tr:hover td { background-color: #fafbfc; }
+
+    /* Badges */
+    .badge {
+      display: inline-block;
+      padding: 0.2rem 0.55rem;
+      border-radius: 4px;
+      font-size: 0.725rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+    .badge-Critical { background: #fee2e2; color: #991b1b; }
+    .badge-High { background: #ffedd5; color: #9a3412; }
+    .badge-Medium { background: #fef9c3; color: #854d0e; }
+    .badge-Low { background: #e0f2fe; color: #075985; }
+    .badge-Info { background: #f1f5f9; color: #475569; }
+
+    /* Issue detail blocks */
+    .issue-detail-card {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1rem 1.25rem;
+      margin-bottom: 1rem;
+      background: #ffffff;
+    }
+    .issue-detail-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.5rem;
+    }
+    .issue-title { font-weight: 700; font-size: 0.95rem; color: var(--text); }
+    .truncation-notice {
+      font-size: 0.75rem;
+      color: #b45309;
+      background: #fef3c7;
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+      display: inline-block;
+      margin-top: 0.25rem;
+    }
+    .sample-list {
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 0.75rem;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.8rem;
+      margin-top: 0.5rem;
+      white-space: pre-wrap;
+      word-break: break-all;
+      color: #334155;
+    }
+    .issue-records-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 0.75rem;
+      font-size: 0.825rem;
+    }
+    .issue-records-table th {
+      background: #f1f5f9;
+      color: #334155;
+      font-weight: 700;
+      text-align: left;
+      padding: 0.5rem 0.75rem;
+      border: 1px solid var(--border);
+    }
+    .issue-records-table td {
+      padding: 0.5rem 0.75rem;
+      border: 1px solid var(--border);
+      vertical-align: middle;
+    }
+    .issue-records-table tr:nth-child(even) {
+      background: #f8fafc;
+    }
+    .val-code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      background: #f1f5f9;
+      padding: 0.15rem 0.4rem;
+      border-radius: 4px;
+      font-size: 0.8rem;
+      color: #0f172a;
+      max-width: 320px;
+      display: inline-block;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      vertical-align: middle;
+    }
+    .val-pill {
+      display: inline-block;
+      padding: 0.15rem 0.5rem;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    }
+    .val-null { background: #fee2e2; color: #991b1b; }
+    .val-empty { background: #fef3c7; color: #92400e; }
+    .val-ws { background: #e0e7ff; color: #3730a3; }
+
+    /* Recommendations */
+    .rec-item {
+      padding: 1.25rem;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      border-left: 5px solid var(--primary-light);
+      margin-bottom: 1rem;
+      background: #fafafa;
+    }
+    .rec-item.sev-Critical { border-left-color: var(--danger); }
+    .rec-item.sev-High { border-left-color: var(--warning); }
+    .rec-item.sev-Medium { border-left-color: #eab308; }
+    .rec-item.sev-Low { border-left-color: var(--primary-light); }
+    
+    .rec-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem; }
+    .rec-title { font-weight: 700; font-size: 1rem; color: var(--text); }
+    .rec-desc { font-size: 0.875rem; color: #475569; }
+
+    .footer { text-align: center; color: var(--text-muted); font-size: 0.8rem; margin-top: 3rem; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <div class="header">
+      <h1>Data Quality Assessment Report</h1>
+      <p>Data Quality Scanner v2.0 &bull; Automated Data Migration Readiness</p>
+      <div class="meta-grid">
+        <div class="meta-item">
+          <span class="meta-label">Primary Dataset</span>
+          <span class="meta-value">{{ primary_dataset.name if primary_dataset else 'N/A' }}</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Total Records</span>
+          <span class="meta-value">{{ primary_dataset.row_count if primary_dataset else 0 }}</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Total Columns</span>
+          <span class="meta-value">{{ primary_dataset.column_count if primary_dataset else 0 }}</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Scan ID</span>
+          <span class="meta-value">{{ result.run_id }}</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Timestamp</span>
+          <span class="meta-value">{{ result.display_timestamp }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 1. Dataset Details Section -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">1. Dataset Details</div>
+        <span class="card-subtitle">{{ result.datasets|length }} dataset(s) analyzed</span>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Dataset Name</th>
+            <th>Role</th>
+            <th>File Type</th>
+            <th>Record Count</th>
+            <th>Column Count</th>
+            <th>Null %</th>
+            <th>Duplicates</th>
+            <th>Scan ID</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for ds in result.datasets %}
+          <tr>
+            <td><strong>{{ ds.name }}</strong></td>
+            <td>
+              {% if ds.is_primary or loop.first %}
+              <span class="badge" style="background:#dbeafe; color:#1e40af;">Primary</span>
+              {% else %}
+              <span class="badge" style="background:#f1f5f9; color:#475569;">Secondary</span>
+              {% endif %}
+            </td>
+            <td><code>{{ ds.file_type or 'CSV' }}</code></td>
+            <td>{{ "{:,}".format(ds.row_count) }}</td>
+            <td>{{ ds.column_count }}</td>
+            <td>{{ "%.1f"|format(ds.overall_null_pct) }}%</td>
+            <td>{{ ds.duplicate_row_count }} ({{ "%.1f"|format(ds.duplicate_row_pct) }}%)</td>
+            <td><code>{{ result.run_id }}</code></td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- 2. Dataset Performance / Readiness -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">2. Dataset Performance & Readiness</div>
+        <span class="card-subtitle">Readiness Score & 6 Quality Dimensions</span>
+      </div>
+      {% if result.score %}
+      <div class="score-container">
+        <div class="score-box">
+          <div class="score-val" style="color: {% if result.score.overall >= 90 %}var(--success){% elif result.score.overall >= 75 %}#65a30d{% elif result.score.overall >= 50 %}var(--warning){% else %}var(--danger){% endif %};">
+            {{ "%.1f"|format(result.score.overall) }}
+          </div>
+          <span class="score-cat cat-{{ result.score.category.value|replace(' ', '-') if result.score.category.value is defined else result.score.category|replace(' ', '-') }}">
+            {{ result.score.category.value if result.score.category.value is defined else result.score.category }}
+          </span>
+          <div class="issue-count-strip">
+            <span class="issue-count-pill" style="color: #991b1b;">Critical: <b>{{ result.score.blocker_count }}</b></span>
+            <span class="issue-count-pill" style="color: #9a3412;">High: <b>{{ result.score.high_count }}</b></span>
+            <span class="issue-count-pill" style="color: #854d0e;">Medium: <b>{{ result.score.medium_count }}</b></span>
+            <span class="issue-count-pill" style="color: #075985;">Low: <b>{{ result.score.low_count }}</b></span>
+          </div>
+        </div>
+
+        <div>
+          <div class="dim-grid">
+            {% for dim in result.score.dimensions %}
+            <div class="dim-card">
+              <div class="dim-header">
+                <span class="dim-name">{{ dim.name }}</span>
+                <span class="dim-score">{{ "%.1f"|format(dim.score) }}</span>
+              </div>
+              <div class="dim-bar-bg">
+                <div class="dim-bar-fill" style="width: {{ dim.score }}%;"></div>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- 3. Quality Issue Summary -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">3. Quality Issue Summary</div>
+        <span class="card-subtitle">Aggregate counts across all quality check rules</span>
+      </div>
+      <div class="stat-grid">
+        <div class="stat-card highlight">
+          <div class="stat-val">{{ summary_counts.total_problems }}</div>
+          <div class="stat-label">Total Problems Detected</div>
+        </div>
+        <div class="stat-card highlight">
+          <div class="stat-val">{{ affected_rows }}</div>
+          <div class="stat-label">Affected Rows</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-val">{{ summary_counts.duplicates }}</div>
+          <div class="stat-label">Duplicates</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-val">{{ summary_counts.nulls_and_blanks }}</div>
+          <div class="stat-label">Null / Blank Values</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-val">{{ summary_counts.mandatory_fields }}</div>
+          <div class="stat-label">Mandatory Fields</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-val">{{ summary_counts.whitespace }}</div>
+          <div class="stat-label">Whitespace Issues</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-val">{{ summary_counts.special_chars }}</div>
+          <div class="stat-label">Special Characters</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-val">{{ summary_counts.dates }}</div>
+          <div class="stat-label">Date Issues</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-val">{{ summary_counts.relationships }}</div>
+          <div class="stat-label">Relationship Orphans</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4. Detailed Issue Information -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">4. Detailed Issue Information</div>
+        <span class="card-subtitle">Specific row indices and problematic values for remediation</span>
+      </div>
+      
+      {% if detailed_issues %}
+        {% for issue in detailed_issues %}
+        <div class="issue-detail-card">
+          <div class="issue-detail-header">
+            <div>
+              <span class="badge badge-{{ issue.severity }}">{{ issue.severity }}</span>
+              <span style="font-weight: 700; margin-left: 0.5rem;">{{ issue.category }} &bull; {{ issue.dataset }}.{{ issue.column }}</span>
+            </div>
+            <div style="font-weight: 700; font-size: 0.9rem; color: var(--text-muted);">
+              Affected: <b style="color: var(--text);">{{ issue.affected_count }}</b> {% if issue.affected_pct > 0 %}({{ "%.1f"|format(issue.affected_pct) }}%){% endif %}
+            </div>
+          </div>
+          <div style="font-size: 0.85rem; color: #475569; margin-bottom: 0.35rem;">
+            <strong>Issue:</strong> {{ issue.issue_type }}
+          </div>
+          {% if issue.truncation_note %}
+          <div class="truncation-notice">{{ issue.truncation_note }}</div>
+          {% endif %}
+          {% if issue.details %}
+          <table class="issue-records-table">
+            <thead>
+              <tr>
+                <th style="width: 85px;">Row</th>
+                <th>Field</th>
+                <th>Actual Value</th>
+                {% if issue.category == 'Pattern / Naming Issues' %}
+                <th>Expected Pattern</th>
+                {% elif issue.category == 'Special Character Issues' %}
+                <th>Character</th>
+                {% elif issue.category == 'Duplicates' %}
+                <th>Duplicate Of</th>
+                {% endif %}
+                <th>Issue</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for rec in issue.details %}
+              <tr>
+                <td><strong>Row {{ rec.row_number if rec.row_number is not none else 'N/A' }}</strong></td>
+                <td><code>{{ rec.field or issue.column }}</code></td>
+                <td>
+                  {% if rec.value is none or rec.value == 'NULL' %}
+                    <span class="val-pill val-null">NULL</span>
+                  {% elif rec.value == '' %}
+                    <span class="val-pill val-empty">"" (empty)</span>
+                  {% elif rec.value|string|trim == '' %}
+                    <span class="val-pill val-ws">"{{ rec.value }}" (whitespace)</span>
+                  {% else %}
+                    <code class="val-code" title="{{ rec.value }}">{{ rec.value|string|truncate(60, True, '…') }}</code>
+                  {% endif %}
+                </td>
+                {% if issue.category == 'Pattern / Naming Issues' %}
+                <td><code>{{ rec.dominant_pattern or rec.expected_pattern or '-' }}</code></td>
+                {% elif issue.category == 'Special Character Issues' %}
+                <td><code>{{ rec.character or '-' }}</code></td>
+                {% elif issue.category == 'Duplicates' %}
+                <td>Row {{ rec.duplicate_of_row if rec.duplicate_of_row else '-' }}</td>
+                {% endif %}
+                <td>{{ rec.issue }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+          {% elif issue.examples_text %}
+          <div class="sample-list">{{ issue.examples_text }}</div>
+          {% endif %}
+        </div>
+        {% endfor %}
+      {% else %}
+        <p style="color: var(--success); font-weight: 600; padding: 1rem 0;">No quality issues detected! All checks passed successfully.</p>
+      {% endif %}
+    </div>
+
+    <!-- 5. Relationship Integrity & Detection -->
+    {% if result.relationship_results %}
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">5. Relationship Integrity & Detection</div>
+        <span class="card-subtitle">Cross-Dataset Referential Integrity and Automatic Detection</span>
+      </div>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Relationship Linkage</th>
+            <th>Detection</th>
+            <th>Integrity Status</th>
+            <th>Child Records</th>
+            <th>Invalid References</th>
+            <th>Invalid Reference Details</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for rr in result.relationship_results %}
+          <tr>
+            <td>
+              <strong>{{ rr.child_dataset }}.{{ rr.child_key }}</strong> &rarr; <strong>{{ rr.parent_dataset }}.{{ rr.parent_key }}</strong>
+              {% if rr.description %}<br><small style="color: var(--text-muted);">{{ rr.description }}</small>{% endif %}
+            </td>
+            <td>
+              <span class="badge" style="background:#e0e7ff; color:#3730a3;">{{ rr.origin_display }}</span>
+            </td>
+            <td>
+              <span class="badge" style="background:{% if rr.orphan_count == 0 %}#dcfce7; color:#15803d;{% else %}#fee2e2; color:#b91c1c;{% endif %}; font-weight: 700;">
+                {{ "PASSED" if rr.orphan_count == 0 else "FAILED" }}
+              </span>
+            </td>
+            <td>{{ "{:,}".format(rr.total_child_records) }}</td>
+            <td>
+              <strong style="color: {% if rr.orphan_count > 0 %}#991b1b{% else %}var(--success){% endif %};">
+                {{ "{:,}".format(rr.orphan_count) }} ({{ "%.1f"|format(rr.orphan_pct) }}%)
+              </strong>
+            </td>
+            <td>
+              {% if rr.sample_orphan_records %}
+                {% if rr.orphan_count > 20 %}
+                <span class="truncation-notice">Showing first 20 of {{ rr.orphan_count }} invalid records</span>
+                {% endif %}
+                <div class="sample-list">
+                  {% for s in rr.sample_orphan_records[:20] %}
+                  Row {{ s.row_number }}: {{ rr.child_key }} = <code>{{ s.key_value }}</code> (not in {{ rr.parent_dataset }}){% if not loop.last %}<br>{% endif %}
+                  {% endfor %}
+                </div>
+              {% else %}
+                <span style="color: var(--success); font-weight: 500;">✓ All references valid</span>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% endif %}
+
+    <!-- 6. Actionable Recommendations -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">6. Prioritized Recommendations</div>
+        <span class="card-subtitle">Suggested remediation actions prioritized by severity</span>
+      </div>
+      {% if result.recommendations %}
+        {% for rec in result.recommendations %}
+        <div class="rec-item sev-{{ rec.severity.value if rec.severity.value is defined else rec.severity }}">
+          <div class="rec-header">
+            <span class="rec-title">{{ rec.title }}</span>
+            <span class="badge badge-{{ rec.severity.value if rec.severity.value is defined else rec.severity }}">{{ rec.severity.value if rec.severity.value is defined else rec.severity }}</span>
+          </div>
+          <div class="rec-desc">{{ rec.description }}</div>
+          <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.5rem;">
+            Dataset: <code>{{ rec.dataset_name }}</code> | Affected Columns: <b>{{ rec.affected_columns|join(', ') }}</b>
+          </div>
+        </div>
+        {% endfor %}
+      {% else %}
+        <p style="color: var(--success); font-weight: 600;">No remediation actions required! Dataset meets all quality criteria.</p>
+      {% endif %}
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+      Generated automatically by Data Quality Scanner v2.0 | Confidential Migration Audit
+    </div>
+  </div>
+</body>
+</html>

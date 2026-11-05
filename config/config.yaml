@@ -1,0 +1,56 @@
+# =============================================================================
+# Data Quality Scanner - User Configuration (V3)
+# =============================================================================
+# Business expectations, required fields, unique keys, formatting rules,
+# and dataset relationships.
+#
+# Technical scoring weights, check toggles, and thresholds are configured in
+# config/admin_config.yaml.
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# 1. Dataset Business Rules
+# -----------------------------------------------------------------------------
+datasets:
+  Customer_Master:
+    mandatory_fields:
+      - Customer_ID
+      - Customer_Name
+      - Email
+      - Phone
+      - Country
+    duplicate_keys:
+      - Customer_ID
+      - Email
+
+  Orders:
+    mandatory_fields:
+      - Order_ID
+      - Customer_ID
+      - Order_Date
+      - Product_ID
+      - Quantity
+      - Unit_Price
+    duplicate_keys:
+      - Order_ID
+
+# -----------------------------------------------------------------------------
+# 2. Field Character Format Rules
+# -----------------------------------------------------------------------------
+# Maps column names to standard character validation presets:
+# (alpha_numeric_only, alpha_numeric_underscore, alpha_numeric_hyphen,
+#  email_format, numeric_only, alpha_only, phone_format, alpha_numeric_with_basic_punctuation)
+field_character_rules:
+  Customer_ID: alpha_numeric_only
+  Email: email_format
+
+
+# -----------------------------------------------------------------------------
+# 3. Configured Relationships (Referential Integrity)
+# -----------------------------------------------------------------------------
+relationships:
+  - parent_dataset: customers_clean_100pct
+    parent_key: Customer_ID
+    child_dataset: orders_related_to_customers
+    child_key: Customer_ID
+    description: "Orders must reference a valid Customer"

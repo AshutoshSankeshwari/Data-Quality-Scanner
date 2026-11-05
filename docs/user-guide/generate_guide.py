@@ -1,0 +1,1564 @@
+"""
+docs/user-guide/generate_guide.py
+Generates the refined, user-oriented Data Quality Scanner V2.5 User Guide in HTML and PDF formats.
+"""
+from __future__ import annotations
+import os
+import subprocess
+from pathlib import Path
+
+GUIDE_DIR = Path(__file__).resolve().parent
+HTML_PATH = GUIDE_DIR / "Data_Quality_Scanner_V2.5_User_Guide.html"
+PDF_PATH = GUIDE_DIR / "Data_Quality_Scanner_V2.5_User_Guide.pdf"
+README_PATH = GUIDE_DIR / "README.md"
+
+def build_guide_html() -> str:
+    return """<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Data Quality Scanner V2.5 — User Guide</title>
+  <style>
+    :root {
+      --primary: #1e3a8a;
+      --primary-dark: #0f172a;
+      --primary-light: #2563eb;
+      --accent: #7c3aed;
+      --success: #059669;
+      --warning: #d97706;
+      --danger: #dc2626;
+      --info: #0284c7;
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --text: #1e293b;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+      --border-dark: #cbd5e1;
+      --code-bg: #f1f5f9;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.55;
+      font-size: 14.5px;
+    }
+
+    .container {
+      display: flex;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    /* Sticky Sidebar Navigation */
+    .sidebar {
+      width: 280px;
+      height: 100vh;
+      position: sticky;
+      top: 0;
+      overflow-y: auto;
+      background: #0f172a;
+      color: #f8fafc;
+      padding: 24px 16px;
+      flex-shrink: 0;
+      border-right: 1px solid #1e293b;
+    }
+
+    .sidebar-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding-bottom: 18px;
+      border-bottom: 1px solid #334155;
+      margin-bottom: 16px;
+    }
+
+    .sidebar-brand h2 {
+      font-size: 15px;
+      font-weight: 700;
+      color: #ffffff;
+      letter-spacing: -0.2px;
+    }
+
+    .sidebar-brand .badge {
+      background: #2563eb;
+      color: #ffffff;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+
+    .nav-list {
+      list-style: none;
+    }
+
+    .nav-item {
+      margin-bottom: 2px;
+    }
+
+    .nav-link {
+      display: block;
+      padding: 6px 10px;
+      color: #94a3b8;
+      text-decoration: none;
+      font-size: 12px;
+      font-weight: 500;
+      border-radius: 5px;
+      transition: all 0.15s ease;
+    }
+
+    .nav-link:hover {
+      background: #1e293b;
+      color: #38bdf8;
+    }
+
+    .nav-link.active {
+      background: #1e3a8a;
+      color: #ffffff;
+      font-weight: 600;
+    }
+
+    /* Main Content */
+    .content {
+      flex: 1;
+      padding: 36px 48px 80px 48px;
+      background: #ffffff;
+      min-width: 0;
+    }
+
+    /* Simplified Cover Page */
+    .cover-card {
+      background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 70%, #2563eb 100%);
+      color: #ffffff;
+      border-radius: 10px;
+      padding: 40px;
+      margin-bottom: 36px;
+      box-shadow: 0 4px 15px rgba(15, 23, 42, 0.15);
+    }
+
+    .cover-card h1 {
+      font-size: 32px;
+      font-weight: 800;
+      margin-bottom: 6px;
+      letter-spacing: -0.5px;
+    }
+
+    .cover-card .cover-title-tag {
+      font-size: 16px;
+      font-weight: 600;
+      color: #93c5fd;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 12px;
+    }
+
+    .cover-card .cover-desc {
+      font-size: 15px;
+      color: #e2e8f0;
+      margin-bottom: 20px;
+      max-width: 750px;
+    }
+
+    .cover-card .cover-audience {
+      display: inline-block;
+      background: rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      padding: 6px 14px;
+      border-radius: 6px;
+      font-size: 13px;
+      color: #f8fafc;
+    }
+
+    /* Headings */
+    h2 {
+      font-size: 21px;
+      color: var(--primary-dark);
+      font-weight: 700;
+      margin-top: 40px;
+      margin-bottom: 14px;
+      padding-bottom: 6px;
+      border-bottom: 2px solid var(--border);
+      letter-spacing: -0.3px;
+    }
+
+    h3 {
+      font-size: 16.5px;
+      color: #1e3a8a;
+      font-weight: 700;
+      margin-top: 24px;
+      margin-bottom: 10px;
+      letter-spacing: -0.2px;
+    }
+
+    h4 {
+      font-size: 14px;
+      color: var(--text);
+      font-weight: 700;
+      margin-top: 16px;
+      margin-bottom: 6px;
+    }
+
+    p {
+      margin-bottom: 12px;
+      color: #334155;
+    }
+
+    ul, ol {
+      margin-bottom: 14px;
+      padding-left: 22px;
+      color: #334155;
+    }
+
+    li {
+      margin-bottom: 5px;
+    }
+
+    /* Step Card Layout for GUI Section */
+    .step-card {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-left: 4px solid var(--primary-light);
+      border-radius: 6px;
+      padding: 16px 20px;
+      margin: 18px 0;
+    }
+
+    .step-header {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--primary-dark);
+      margin-bottom: 8px;
+    }
+
+    /* Callout Boxes */
+    .callout {
+      border-left: 4px solid var(--primary-light);
+      background: #eff6ff;
+      padding: 12px 16px;
+      border-radius: 0 6px 6px 0;
+      margin: 16px 0;
+      font-size: 13.5px;
+    }
+
+    .callout-title {
+      font-weight: 700;
+      color: var(--primary-dark);
+      margin-bottom: 4px;
+      font-size: 13.5px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .callout-warning {
+      border-left-color: var(--warning);
+      background: #fffbeb;
+    }
+
+    .callout-warning .callout-title {
+      color: #92400e;
+    }
+
+    .callout-danger {
+      border-left-color: var(--danger);
+      background: #fef2f2;
+    }
+
+    .callout-danger .callout-title {
+      color: #991b1b;
+    }
+
+    .callout-tip {
+      border-left-color: var(--success);
+      background: #f0fdf4;
+    }
+
+    .callout-tip .callout-title {
+      color: #166534;
+    }
+
+    /* Code Blocks */
+    pre {
+      background: #0f172a;
+      color: #e2e8f0;
+      padding: 12px 16px;
+      border-radius: 6px;
+      font-family: Consolas, Monaco, "Courier New", monospace;
+      font-size: 12.5px;
+      line-height: 1.5;
+      overflow-x: auto;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      word-break: break-word;
+      margin: 12px 0 16px 0;
+    }
+
+    code {
+      font-family: Consolas, Monaco, "Courier New", monospace;
+      font-size: 12.5px;
+      background: var(--code-bg);
+      color: #0f172a;
+      padding: 2px 5px;
+      border-radius: 4px;
+      border: 1px solid var(--border);
+    }
+
+    pre code {
+      background: transparent;
+      color: inherit;
+      padding: 0;
+      border: none;
+    }
+
+    /* Tables */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 16px 0 24px 0;
+      font-size: 13.5px;
+    }
+
+    table th {
+      background: #1e3a8a;
+      color: #ffffff;
+      text-align: left;
+      padding: 10px 12px;
+      font-weight: 600;
+      border: 1px solid #1e3a8a;
+    }
+
+    table td {
+      padding: 9px 12px;
+      border: 1px solid var(--border);
+      vertical-align: top;
+    }
+
+    table tr:nth-child(even) {
+      background: #f8fafc;
+    }
+
+    table tr:hover {
+      background: #f1f5f9;
+    }
+
+    table code {
+      background: #f1f5f9;
+      border: none;
+      font-size: inherit;
+    }
+
+    /* Figures / Screenshots */
+    figure {
+      margin: 18px 0;
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 10px;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+      break-inside: avoid;
+    }
+
+    figure img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 4px;
+      display: block;
+      margin: 0 auto;
+      border: 1px solid #e2e8f0;
+    }
+
+    figcaption {
+      margin-top: 8px;
+      font-size: 12px;
+      color: var(--text-muted);
+      text-align: center;
+      font-weight: 500;
+    }
+
+    /* Flow Boxes */
+    .flow-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin: 14px 0;
+    }
+
+    .flow-card {
+      flex: 1;
+      min-width: 240px;
+      background: #f8fafc;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      padding: 14px 16px;
+    }
+
+    .flow-card h4 {
+      margin-top: 0;
+      color: var(--primary);
+      font-size: 14px;
+    }
+
+    /* Badges */
+    .badge-critical { background: #fee2e2; color: #dc2626; font-weight: 700; padding: 2px 5px; border-radius: 3px; font-size: 11px; }
+    .badge-high     { background: #ffedd5; color: #ea580c; font-weight: 700; padding: 2px 5px; border-radius: 3px; font-size: 11px; }
+    .badge-medium   { background: #fef3c7; color: #d97706; font-weight: 700; padding: 2px 5px; border-radius: 3px; font-size: 11px; }
+    .badge-low      { background: #e0f2fe; color: #0284c7; font-weight: 700; padding: 2px 5px; border-radius: 3px; font-size: 11px; }
+
+    /* Print / PDF Formatting (~15-18 pages) */
+    @media print {
+      @page {
+        margin: 14mm 12mm 14mm 12mm;
+        size: letter;
+      }
+      body {
+        background: #ffffff;
+        color: #000000;
+        font-size: 10pt;
+        line-height: 1.42;
+      }
+      .sidebar {
+        display: none !important;
+      }
+      .content {
+        padding: 0 !important;
+        max-width: 100% !important;
+      }
+      .cover-card {
+        padding: 24px;
+        background: #0f172a !important;
+        color: #ffffff !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+        page-break-after: always;
+      }
+      h2 {
+        page-break-before: auto;
+        break-after: avoid;
+        margin-top: 20pt;
+        padding-top: 6pt;
+        font-size: 15pt;
+      }
+      h3 {
+        font-size: 12.5pt;
+        margin-top: 12pt;
+      }
+      h3, h4, figure, table, .callout, .step-card {
+        break-inside: avoid;
+        page-break-inside: avoid;
+      }
+      figure img {
+        max-height: 270px;
+        width: auto;
+      }
+      pre {
+        background: #1e293b !important;
+        color: #ffffff !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+        break-inside: avoid;
+        font-size: 9pt;
+        padding: 8px 12px;
+        white-space: pre-wrap !important;
+        word-wrap: break-word !important;
+        word-break: break-word !important;
+      }
+      table th {
+        background: #1e3a8a !important;
+        color: #ffffff !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+        font-size: 9pt;
+        padding: 6px 8px;
+      }
+      table td {
+        font-size: 8.5pt;
+        padding: 5px 8px;
+      }
+      #sec-quickstart {
+        break-before: page;
+        page-break-before: always;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <!-- Sticky Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <h2>Data Quality Scanner</h2>
+      <span class="badge">V2.5</span>
+    </div>
+    <ul class="nav-list">
+      <li class="nav-item"><a class="nav-link" href="#sec-intro">1. Introduction &amp; Purpose</a></li>
+      <li class="nav-item"><a class="nav-link" href="#sec-modes">2. Which Mode Should I Use?</a></li>
+      <li class="nav-item"><a class="nav-link" href="#sec-reqs">3. System Requirements &amp; Folders</a></li>
+      <li class="nav-item"><a class="nav-link" href="#sec-data">4. Input Data Requirements</a></li>
+      <li class="nav-item"><a class="nav-link" href="#sec-gui">5. Desktop GUI Mode (Setup &amp; Walkthrough)</a></li>
+      <li class="nav-item"><a class="nav-link" href="#sec-checks">6. The 8 Quality Checks</a></li>
+      <li class="nav-item"><a class="nav-link" href="#sec-score">7. Understanding the Readiness Score</a></li>
+      <li class="nav-item"><a class="nav-link" href="#sec-results">8. Understanding Results &amp; Issues</a></li>
+      <li class="nav-item"><a class="nav-link" href="#sec-reports">9. Assessment Reports (Excel/HTML/JSON)</a></li>
+      <li class="nav-item"><a class="nav-link" href="#sec-cli">10. Headless Batch / CLI Mode</a></li>
+      <li class="nav-item"><a class="nav-link" href="#sec-config">11. Configuration Management</a></li>
+      <li class="nav-item"><a class="nav-link" href="#sec-inference">12. Automatic Rule Inference</a></li>
+      <li class="nav-item"><a class="nav-link" href="#sec-history">13. Scan History &amp; Persistence</a></li>
+      <li class="nav-item"><a class="nav-link" href="#sec-troubleshooting">14. Troubleshooting Guide</a></li>
+      <li class="nav-item"><a class="nav-link" href="#sec-quickstart">15. Quick-Start Checklist</a></li>
+    </ul>
+  </aside>
+
+  <!-- Main Content Area -->
+  <main class="content">
+
+    <!-- Cover Page -->
+    <div class="cover-card">
+      <div class="cover-title-tag">User Guide</div>
+      <h1>Data Quality Scanner V2.5</h1>
+      <p class="cover-desc">
+        Pre-Migration Data Quality Assessment &amp; Migration-Readiness Decision Platform
+      </p>
+      <div class="cover-audience">
+        <strong>Intended Audience:</strong> Data Analysts, Migration Teams, Data Engineers
+      </div>
+    </div>
+
+    <!-- 1. Introduction & Overview -->
+    <section id="sec-intro">
+      <h2>1. Introduction &amp; Purpose</h2>
+      <p>
+        <strong>Data Quality Scanner</strong> is an automated pre-migration data quality assessment platform that profiles source datasets, infers high-confidence business rules, detects quality issues, converts them into a migration-readiness decision, and provides actionable record-level reports before migration.
+      </p>
+
+      <h3>What Problem It Solves</h3>
+      <p>
+        Data migrations often encounter costly roadblocks when legacy data contains hidden defects—such as missing values in mandatory columns, duplicate record keys, invalid dates, broken foreign-key relationships, and invisible whitespace formatting errors.
+      </p>
+      <p>
+        Data Quality Scanner catches these defects <em>before</em> migration scripts execute or data loads into target systems, helping teams identify and address issues earlier in the migration process.
+      </p>
+
+      <h3>When to Use It</h3>
+      <ul>
+        <li><strong>Discovery Phase:</strong> Profile legacy source extracts to understand data cleanliness and structure.</li>
+        <li><strong>ETL Development:</strong> Validate transformed datasets against required business constraints.</li>
+        <li><strong>Pre-Go-Live Dress Rehearsals:</strong> Verify final extract readiness and generate reports for migration review and remediation.</li>
+      </ul>
+
+      <h3>What Users Receive After a Scan</h3>
+      <div class="flow-grid">
+        <div class="flow-card">
+          <h4>🎯 Overall Readiness Score (0–100)</h4>
+          <p>An objective score and status (<em>Ready</em>, <em>Minor Cleansing</em>, <em>Needs Cleansing</em>, <em>Not Ready</em>) showing if data is fit for migration.</p>
+        </div>
+        <div class="flow-card">
+          <h4>📊 Diagnostic Dimension Meters</h4>
+          <p>Health ratings across six core quality dimensions: Completeness, Uniqueness, Validity, Consistency, Integrity, and Cleanliness.</p>
+        </div>
+        <div class="flow-card">
+          <h4>🔍 Record-Level Issue Logs</h4>
+          <p>Exact row numbers, column names, actual defective values, and error explanations for direct remediation.</p>
+        </div>
+        <div class="flow-card">
+          <h4>📄 Stakeholder Deliverables</h4>
+          <p>Detailed multi-sheet Excel (<code>.xlsx</code>), interactive HTML, and machine-readable JSON assessment reports.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. Which Mode Should I Use? -->
+    <section id="sec-modes">
+      <h2>2. Which Mode Should I Use?</h2>
+      <p>
+        The application offers two execution modes that share the exact same core calculation engine:
+      </p>
+
+      <div class="flow-grid">
+        <div class="flow-card" style="border-top: 3px solid #2563eb;">
+          <h4>🖥️ Desktop GUI Mode</h4>
+          <p><strong>Best for interactive exploration and visual analysis.</strong></p>
+          <ul>
+            <li>Visual dataset upload with 10-row preview grid.</li>
+            <li>Interactive confirmation dialog for inferred mandatory fields.</li>
+            <li>Circular readiness score gauge and dynamic dimension meters.</li>
+            <li>Filterable issues table with real-time text search.</li>
+            <li>Visual parent-child relationship diagrams and orphan rows.</li>
+            <li>Double-click to reload historical scans from SQLite.</li>
+          </ul>
+          <p><em>Launch command:</em> <code>python main.py</code></p>
+        </div>
+
+        <div class="flow-card" style="border-top: 3px solid #059669;">
+          <h4>⚡ Headless Batch / CLI Mode</h4>
+          <p><strong>Best for automated, scheduled, or multi-file runs.</strong></p>
+          <ul>
+            <li>Runs directly in terminals, shell scripts, or CI/CD pipelines.</li>
+            <li>Zero graphical or display-server dependencies.</li>
+            <li>Deterministic process exit codes (<code>0</code>, <code>1</code>, <code>2</code>, <code>3</code>) for build pipelines.</li>
+            <li>Direct flags for automated report generation (<code>--excel</code>, <code>--html</code>, <code>--json</code>).</li>
+            <li>Specific dataset profile and Excel sheet selection arguments.</li>
+          </ul>
+          <p><em>Launch command:</em> <code>python batch_runner.py [options] DATASET...</code></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. System Requirements & Important Folders -->
+    <section id="sec-reqs">
+      <h2>3. System Requirements &amp; Important Folders</h2>
+
+      <h3>System Requirements</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Requirement</th>
+            <th>Specification</th>
+            <th>Type</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Operating System</strong></td>
+            <td>Validated Environment: Windows 10/11.<br><em>Other operating systems may work where all project dependencies are supported, but should be validated before deployment.</em></td>
+            <td>Required</td>
+          </tr>
+          <tr>
+            <td><strong>Python Environment</strong></td>
+            <td>Python 3.11 or later (64-bit)</td>
+            <td>Required</td>
+          </tr>
+          <tr>
+            <td><strong>Dependencies</strong></td>
+            <td>Installed via <code>requirements.txt</code> (PySide6, pandas, openpyxl, PyYAML, Jinja2, matplotlib, charset-normalizer)</td>
+            <td>Required</td>
+          </tr>
+          <tr>
+            <td><strong>File Permissions</strong></td>
+            <td>Read access to input datasets; write access to <code>data/</code> (database) and <code>reports/</code> (outputs)</td>
+            <td>Required</td>
+          </tr>
+          <tr>
+            <td><strong>Test Dependencies</strong></td>
+            <td><code>pytest</code> and <code>pytest-qt</code> (installed via <code>requirements-dev.txt</code>)</td>
+            <td>Optional</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>Important Project Folders</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Folder</th>
+            <th>Purpose</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>config/</code></td>
+            <td>Business rules (<code>config.yaml</code>) and admin technical parameters (<code>admin_config.yaml</code>).</td>
+          </tr>
+          <tr>
+            <td><code>assets/branding/</code></td>
+            <td>Company branding assets displayed in application deliverables.</td>
+          </tr>
+          <tr>
+            <td><code>reports/</code></td>
+            <td>Default destination folder for generated Excel, HTML, and JSON assessment reports.</td>
+          </tr>
+          <tr>
+            <td><code>data/</code></td>
+            <td>Local SQLite database (<code>scanner.db</code>) storing historical assessment metadata.</td>
+          </tr>
+          <tr>
+            <td><code>samples/</code></td>
+            <td>Pre-packaged sample datasets provided for immediate testing and demonstration.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- 4. Input Data Requirements -->
+    <section id="sec-data">
+      <h2>4. Input Data Requirements</h2>
+
+      <h3>Supported File Formats</h3>
+      <ul>
+        <li><strong>CSV Files (<code>.csv</code>):</strong> Delimiters (comma, semicolon, tab, pipe) and text encodings (UTF-8, Latin-1, Windows-1252) are detected automatically.</li>
+        <li><strong>Excel Workbooks (<code>.xlsx</code>, <code>.xls</code>):</strong> Single-sheet and multi-sheet workbooks are supported. The user can select the target worksheet during upload or specify it in CLI mode.</li>
+      </ul>
+
+      <h3>Structural Expectations</h3>
+      <ul>
+        <li><strong>Header Row:</strong> Row 1 must contain column names. Column names are automatically trimmed of extra spaces upon loading.</li>
+        <li><strong>Tabular Consistency:</strong> Data rows must follow a consistent column structure. Empty lines are handled safely.</li>
+        <li><strong>Multi-Dataset Analysis:</strong> When checking foreign-key relationships, load both the parent dataset (e.g. Customers) and child dataset (e.g. Orders) in the same session.</li>
+      </ul>
+
+      <h3>Handled Data Conditions</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Condition</th>
+            <th>Scanner Handling</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Blanks, Nulls, &amp; Whitespace</strong></td>
+            <td>Differentiates true SQL nulls, empty strings (<code>""</code>), and whitespace strings (<code>"   "</code>).</td>
+          </tr>
+          <tr>
+            <td><strong>Corrupted or Locked Files</strong></td>
+            <td>Displays a friendly notification explaining that the file cannot be accessed or is open in another program.</td>
+          </tr>
+          <tr>
+            <td><strong>Broken References</strong></td>
+            <td>Cross-matches child foreign keys against parent keys, listing exact row numbers and missing key values.</td>
+          </tr>
+          <tr>
+            <td><strong>Large Datasets (&gt;500k rows)</strong></td>
+            <td>A non-blocking notification reminds users that deep pattern scanning may require extra memory.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- 5. Desktop GUI Mode Setup & Walkthrough -->
+    <section id="sec-gui">
+      <h2>5. Desktop GUI Mode (Setup &amp; Walkthrough)</h2>
+      <p>
+        Follow these steps to set up the environment, launch the application, and complete an end-to-end data quality scan:
+      </p>
+
+      <!-- Step 1 -->
+      <div class="step-card">
+        <div class="step-header">Step 1 — Open Terminal &amp; Navigate to Project Root</div>
+        <p>Open your command-line terminal and change directory to the project root folder containing <code>main.py</code> and <code>batch_runner.py</code>. You must first move into the project directory because the virtual environment should be created inside the project:</p>
+        <pre><code>cd path/to/migration-dq-scanner</code></pre>
+      </div>
+
+      <!-- Step 2 -->
+      <div class="step-card">
+        <div class="step-header">Step 2 — Create the Python Virtual Environment</div>
+        <p>Create an isolated Python virtual environment inside the project directory (normally only needs to be done once during initial setup):</p>
+        <pre><code>python -m venv .venv</code></pre>
+        <p>This creates the isolated <code>.venv</code> environment inside the project directory to ensure project dependencies do not conflict with your system Python packages.</p>
+      </div>
+
+      <!-- Step 3 -->
+      <div class="step-card">
+        <div class="step-header">Step 3 — Activate the Virtual Environment</div>
+        <p>Activate the virtual environment corresponding to your operating system shell:</p>
+        <pre><code># Windows PowerShell:
+.\\.venv\\Scripts\\Activate.ps1
+
+# Windows Command Prompt (CMD):
+.venv\\Scripts\\activate.bat
+
+# Linux / macOS:
+source .venv/bin/activate</code></pre>
+        <p>Upon activation, your shell prompt will show the <code>(.venv)</code> prefix indicating that the isolated environment is active.</p>
+      </div>
+
+      <!-- Step 4 -->
+      <div class="step-card">
+        <div class="step-header">Step 4 — Install Project Dependencies</div>
+        <p>Install all required application libraries using pip:</p>
+        <pre><code>python -m pip install -r requirements.txt</code></pre>
+        <p>This installs PySide6, pandas, openpyxl, PyYAML, Jinja2, matplotlib, and charset-normalizer as specified in the project requirements.</p>
+      </div>
+
+      <!-- Step 5 -->
+      <div class="step-card">
+        <div class="step-header">Step 5 — Start the Application</div>
+        <p>Launch the Desktop GUI by running:</p>
+        <pre><code>python main.py</code></pre>
+        <p>The main application window opens displaying the header and the Dataset Upload section.</p>
+        <figure>
+          <img src="images/gui_header_branding.png" alt="Application Header">
+          <figcaption>Figure 5.1: Top application header displayed upon launch.</figcaption>
+        </figure>
+      </div>
+
+      <!-- Step 6 -->
+      <div class="step-card">
+        <div class="step-header">Step 6 — Add Datasets</div>
+        <p>
+          In the <strong>Dataset Upload</strong> section:
+        </p>
+        <ul>
+          <li>Click <strong>➕ Add CSV File</strong> to browse and select a delimited text file.</li>
+          <li>Click <strong>➕ Add Excel Workbook</strong> to select a spreadsheet.</li>
+          <li>Use <strong>🗑️ Remove Selected</strong> if you need to remove a dataset from the queue.</li>
+        </ul>
+      </div>
+
+      <!-- Step 7 -->
+      <div class="step-card">
+        <div class="step-header">Step 7 — Select Excel Worksheet (If Applicable)</div>
+        <p>
+          When loading a multi-sheet Excel workbook, a sheet selection modal dialog opens automatically prompting you to choose which worksheet to analyze. Select the appropriate sheet and click <strong>Select</strong>.
+        </p>
+      </div>
+
+      <!-- Step 8 -->
+      <div class="step-card">
+        <div class="step-header">Step 8 — Review Dataset Preview</div>
+        <p>
+          Click on any dataset in the <strong>Loaded Datasets</strong> list. The <strong>Dataset Preview</strong> grid immediately displays the first 10 rows of the selected dataset alongside total row and column counts.
+        </p>
+        <figure>
+          <img src="images/gui_upload_section.png" alt="Dataset Upload and Preview">
+          <figcaption>Figure 5.2: Loaded datasets list and first 10 rows preview grid.</figcaption>
+        </figure>
+      </div>
+
+      <!-- Step 9 -->
+      <div class="step-card">
+        <div class="step-header">Step 9 — Run Analysis &amp; Confirm Inferred Rules</div>
+        <p>
+          Click the green <strong>🚀 Run Data Quality Analysis</strong> button.
+        </p>
+        <p>
+          If the dataset contains columns that strongly resemble mandatory business fields (not already defined in configuration), the scanner opens the <strong>Mandatory Fields Detected</strong> review dialog:
+        </p>
+        <figure>
+          <img src="images/gui_mandatory_confirmation_dialog.png" alt="Inferred Mandatory Fields Confirmation">
+          <figcaption>Figure 5.3: Review dialog allowing users to confirm or decline inferred mandatory fields.</figcaption>
+        </figure>
+        <ul>
+          <li><strong>Proceed (Default):</strong> Applies these fields as mandatory requirements for this analysis run.</li>
+          <li><strong>Cancel:</strong> Aborts analysis execution cleanly without altering settings.</li>
+        </ul>
+      </div>
+
+      <!-- Step 10 -->
+      <div class="step-card">
+        <div class="step-header">Step 10 — Review Results, Dimensions, &amp; Issues</div>
+        <p>
+          When analysis finishes, the dashboard automatically scrolls down to display findings:
+        </p>
+        <ul>
+          <li><strong>Overall Data Quality Result:</strong> Circular gauge showing the Readiness Score (0–100), status, and issue counts.</li>
+          <li><strong>Quality Dimension Scores:</strong> Six diagnostic health progress bars.</li>
+          <li><strong>Quality Issues Table:</strong> Filterable table showing severity, category, dataset, column, quality dimension, and issue description.</li>
+          <li><strong>Relationship Integrity:</strong> Parent-child linkage diagram, pass/fail badge, and orphan rows table.</li>
+        </ul>
+        <figure>
+          <img src="images/gui_dashboard_results.png" alt="Full Assessment Results Dashboard">
+          <figcaption>Figure 5.4: Live assessment dashboard displaying scores, dimensions, and issues.</figcaption>
+        </figure>
+      </div>
+
+      <!-- Step 11 -->
+      <div class="step-card">
+        <div class="step-header">Step 11 — Review Recommendations</div>
+        <p>
+          Scroll to the <strong>Recommendations</strong> card to review prioritized remediation actions sorted Critical-first.
+        </p>
+        <figure>
+          <img src="images/gui_recommendations.png" alt="Remediation Recommendations">
+          <figcaption>Figure 5.5: Prioritized remediation recommendations.</figcaption>
+        </figure>
+      </div>
+
+      <!-- Step 12 -->
+      <div class="step-card">
+        <div class="step-header">Step 12 — Generate Reports</div>
+        <p>
+          In the <strong>Export Reports</strong> section, check your desired formats (<em>HTML Report</em>, <em>Excel Workbook</em>, <em>JSON</em>), choose an output directory if needed, and click <strong>📥 Generate &amp; Save Reports</strong>.
+        </p>
+        <figure>
+          <img src="images/gui_export_reports.png" alt="Report Export Controls">
+          <figcaption>Figure 5.6: Selecting report formats and destination folder.</figcaption>
+        </figure>
+      </div>
+
+      <!-- Step 13 -->
+      <div class="step-card">
+        <div class="step-header">Step 13 — Review Scan History</div>
+        <p>
+          By default, completed scans are recorded in the local SQLite database (<code>data/scanner.db</code>). Persistence can be disabled in Batch/CLI mode using <code>--no-db</code> or <code>--skip-db</code>. Review past assessments in the <strong>Scan History</strong> table. Double-clicking any past scan row reloads its scores, charts, and findings directly back into the dashboard.
+        </p>
+        <figure>
+          <img src="images/gui_scan_history.png" alt="Scan History Table">
+          <figcaption>Figure 5.7: Historical scan log with double-click reload functionality.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <!-- 6. The 8 Quality Checks -->
+    <section id="sec-checks">
+      <h2>6. The 8 Quality Checks</h2>
+      <p>
+        The engine evaluates source data across eight standardized quality checks:
+      </p>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Check</th>
+            <th>What It Checks</th>
+            <th>Why It Matters for Migration</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>1. Duplicates</strong></td>
+            <td>Identifies full-row identical records and duplicate business keys (e.g. duplicate Customer ID).</td>
+            <td>Prevents primary key collisions and unique constraint rejections during target database loading.</td>
+          </tr>
+          <tr>
+            <td><strong>2. Nulls &amp; Blanks</strong></td>
+            <td>Separates true nulls, empty strings, and whitespace-only values across all columns.</td>
+            <td>Identifies unpopulated fields and differentiates data gaps from formatting defects.</td>
+          </tr>
+          <tr>
+            <td><strong>3. Mandatory Fields</strong></td>
+            <td>Verifies that required business fields have non-empty data in every row.</td>
+            <td>Catches records that would violate target system <code>NOT NULL</code> constraints.</td>
+          </tr>
+          <tr>
+            <td><strong>4. Whitespace</strong></td>
+            <td>Detects leading spaces, trailing spaces, and multiple consecutive internal spaces.</td>
+            <td>Invisible whitespace causes failed record lookups, broken text joins, and distorted reporting.</td>
+          </tr>
+          <tr>
+            <td><strong>5. Special Characters</strong></td>
+            <td>Scans for global anomaly characters (<code>$</code>, <code>@</code>, <code>#</code>, <code>%</code>, <code>&amp;</code>, <code>*</code>) and preset format rules.</td>
+            <td>Prevents parser errors, SQL/XML syntax breaks, and illegal characters in strict target fields.</td>
+          </tr>
+          <tr>
+            <td><strong>6. Pattern Consistency</strong></td>
+            <td>Converts values to structural masks (e.g. <code>AAA-999</code>) and clusters dominant vs outlier patterns.</td>
+            <td>Surfaces legacy entry variations and non-standard coding formats.</td>
+          </tr>
+          <tr>
+            <td><strong>7. Dates</strong></td>
+            <td>Validates dates against accepted formats and flags unparseable or mixed date representations.</td>
+            <td>Eliminates date conversion crashes and ambiguous day/month transpositions during ETL.</td>
+          </tr>
+          <tr>
+            <td><strong>8. Relationships</strong></td>
+            <td>Cross-matches child foreign keys against parent primary keys to detect missing parents.</td>
+            <td>Prevents orphan child records that violate relational database foreign-key integrity.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- 7. Readiness Score -->
+    <section id="sec-score">
+      <h2>7. Understanding the Readiness Score</h2>
+
+      <div class="callout callout-tip">
+        <div class="callout-title">✓ 100% Clean Baseline Guarantee</div>
+        <p>
+          A clean dataset with zero defects receives an exact score of <strong>100.0</strong>. Points are deducted only when genuine issues are detected.
+        </p>
+      </div>
+
+      <h3>How the Score is Calculated</h3>
+      <p>
+        The readiness score is calculated through a simple, transparent flow:
+      </p>
+      <div class="workflow-steps" style="display: flex; gap: 8px; margin: 12px 0;">
+        <div class="workflow-box" style="flex: 1; border: 1px solid #cbd5e1; padding: 10px; text-align: center; border-radius: 6px;">
+          <strong>Detected Issues</strong>
+        </div>
+        <div class="workflow-box" style="flex: 1; border: 1px solid #cbd5e1; padding: 10px; text-align: center; border-radius: 6px;">
+          <strong>Severity Weight</strong>
+        </div>
+        <div class="workflow-box" style="flex: 1; border: 1px solid #cbd5e1; padding: 10px; text-align: center; border-radius: 6px;">
+          <strong>Affected Record Volume</strong>
+        </div>
+        <div class="workflow-box" style="flex: 1; border: 1px solid #cbd5e1; padding: 10px; text-align: center; border-radius: 6px;">
+          <strong>Score Deduction</strong>
+        </div>
+      </div>
+      <p>
+        Deductions start with the severity weight of the defect and scale based on what percentage of the dataset is affected. Higher severity issues and larger volumes of bad data produce larger score reductions.
+      </p>
+
+      <figure>
+        <img src="images/gui_readiness_score.png" alt="Readiness Score Gauge and KPI Summary">
+        <figcaption>Figure 7.1: Circular readiness score gauge and issue severity distribution.</figcaption>
+      </figure>
+
+      <h3>Severity Levels</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Severity</th>
+            <th>Base Impact</th>
+            <th>Types of Issues</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="badge-critical">CRITICAL</span></td>
+            <td>15.0 pts max</td>
+            <td>Migration blockers: missing mandatory fields, duplicate unique keys, orphan foreign keys.</td>
+          </tr>
+          <tr>
+            <td><span class="badge-high">HIGH</span></td>
+            <td>8.0 pts max</td>
+            <td>Severe anomalies: unparseable dates, high null rates (&ge;20%), high duplicate rates (&ge;5%).</td>
+          </tr>
+          <tr>
+            <td><span class="badge-medium">MEDIUM</span></td>
+            <td>3.0 pts max</td>
+            <td>Moderate anomalies: special character violations, moderate null/duplicate rates.</td>
+          </tr>
+          <tr>
+            <td><span class="badge-low">LOW</span></td>
+            <td>1.0 pt max</td>
+            <td>Minor defects: leading/trailing whitespace, pattern outlier clusters, mixed date formats.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>Readiness Categories</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Category</th>
+            <th>Score Range</th>
+            <th>Migration Readiness Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Ready</strong></td>
+            <td><strong>90.0 – 100.0</strong></td>
+            <td>Data meets high quality standards. Migration may proceed immediately.</td>
+          </tr>
+          <tr>
+            <td><strong>Ready with Minor Cleansing</strong></td>
+            <td><strong>75.0 – 89.9</strong></td>
+            <td>Minor formatting/whitespace defects. Can be cleansed via automated ETL transforms.</td>
+          </tr>
+          <tr>
+            <td><strong>Needs Cleansing</strong></td>
+            <td><strong>50.0 – 74.9</strong></td>
+            <td>Significant defects detected. Requires source-level data correction before loading.</td>
+          </tr>
+          <tr>
+            <td><strong>Not Ready</strong></td>
+            <td><strong>Below 50.0</strong></td>
+            <td>Critical blockers or integrity failures. Migration must be halted until resolved.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <figure>
+        <img src="images/gui_dimension_metrics.png" alt="Diagnostic Dimension Meters">
+        <figcaption>Figure 7.2: Diagnostic health progress bars across the six dimensions.</figcaption>
+      </figure>
+
+      <div class="callout callout-warning">
+        <div class="callout-title">⚠️ Diagnostic Dimensions Notice</div>
+        <p>
+          The six dimension bars (Completeness, Uniqueness, Validity, Consistency, Integrity, Cleanliness) are independent diagnostic indicators. They provide health insights but do not dilute or distort the overall issue-driven readiness score.
+        </p>
+      </div>
+    </section>
+
+    <!-- 8. Understanding Results & Issues -->
+    <section id="sec-results">
+      <h2>8. Understanding Results &amp; Issues</h2>
+      <p>
+        Detected quality violations are displayed in the <strong>Quality Issues</strong> table with real-time text search and multi-criteria dropdown filters:
+      </p>
+
+      <figure>
+        <img src="images/gui_issues_table.png" alt="Quality Issues Table">
+        <figcaption>Figure 8.1: Searchable and filterable Quality Issues table.</figcaption>
+      </figure>
+
+      <h3>Table Columns Explained</h3>
+      <ul>
+        <li><strong>Severity:</strong> Defect impact level (<span class="badge-critical">Critical</span>, <span class="badge-high">High</span>, <span class="badge-medium">Medium</span>, <span class="badge-low">Low</span>).</li>
+        <li><strong>Category:</strong> Check module (e.g. <em>Mandatory Fields</em>, <em>Duplicates</em>, <em>Dates</em>).</li>
+        <li><strong>Dataset:</strong> The specific source dataset where the defect occurred.</li>
+        <li><strong>Affected Field(s):</strong> The column or key set containing the defect.</li>
+        <li><strong>Quality Dimension:</strong> The related quality dimension category.</li>
+        <li><strong>Issue Description:</strong> Summary describing the nature of the violation and volume affected.</li>
+      </ul>
+
+      <h3>Three Types of Findings</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Finding Type</th>
+            <th>What It Represents</th>
+            <th>Example</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Aggregate / Dataset-Level</strong></td>
+            <td>High-level structural metrics across an entire column or dataset.</td>
+            <td><em>"Country column has 24.5% overall null rate across 5,000 rows."</em></td>
+          </tr>
+          <tr>
+            <td><strong>Row-Level Issue</strong></td>
+            <td>A specific defect occurring on a concrete source record.</td>
+            <td><em>"Row 15: Email contains invalid character '$' in value 'john$doe@company.com'."</em></td>
+          </tr>
+          <tr>
+            <td><strong>Relationship / Orphan</strong></td>
+            <td>A child foreign key that points to a non-existent parent primary key.</td>
+            <td><em>"Row 42: Order references Customer_ID 'CUST-999', which does not exist in Customers."</em></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <figure>
+        <img src="images/gui_relationship_integrity.png" alt="Relationship Integrity and Orphan Records">
+        <figcaption>Figure 8.2: Referential integrity findings displaying parent/child linkage and exact orphan records.</figcaption>
+      </figure>
+    </section>
+
+    <!-- 9. Reports -->
+    <section id="sec-reports">
+      <h2>9. Assessment Reports</h2>
+      <p>
+        Data Quality Scanner generates executive-ready reports saved under <code>reports/&lt;dataset_name&gt;_data_quality_report.&lt;ext&gt;</code>:
+      </p>
+
+      <h3>1. Multi-Sheet Excel Workbook (.xlsx)</h3>
+      <p>
+        The primary deliverable for data engineering and remediation teams. Formatted with professional styling and freeze panes across up to 7 dedicated sheets, depending on the assessment results. Relationship details are included when relationship results are available:
+      </p>
+      <ul>
+        <li><strong>1. Summary:</strong> Executive dashboard, scan metadata, readiness score, dimension health summary, and top findings.</li>
+        <li><strong>2. Dataset Details:</strong> Row counts, column counts, null percentages, duplicate row metrics, and file attributes.</li>
+        <li><strong>3. Quality Issue Summary:</strong> Roll-up table showing problem counts and pass/fail status per check category.</li>
+        <li><strong>4. Issue Details:</strong> <strong>The core remediation table.</strong> Contains an AutoFilter on row 1 (columns A to H):
+          <br><code>Row</code> | <code>Dataset</code> | <code>Category</code> | <code>Severity</code> | <code>Field / Column</code> | <code>Actual Value</code> | <code>Issue Description</code> | <code>Context / Detail</code>
+          <br><em>Aggregate findings are placed in a clearly separated section below the row-level table outside the AutoFilter.</em>
+        </li>
+        <li><strong>5. Quality Dimensions:</strong> Independent diagnostic dimension scores (/100) and explanations for the observed quality health.</li>
+        <li><strong>6. Relationships (when applicable):</strong> Parent/child linkage table and the <strong>Orphan Reference Details</strong> table (listing exact child row numbers and missing key values).</li>
+        <li><strong>7. Recommendations:</strong> Prioritized remediation tasks sorted by severity with affected columns.</li>
+      </ul>
+
+      <h3>2. Standalone HTML Report (.html)</h3>
+      <p>
+        A self-contained, responsive web report ideal for management review and project sign-off. Includes interactive KPI cards, collapsible findings sections, and SVG score meters. Requires no internet connection.
+      </p>
+
+      <h3>3. Structured JSON Export (.json)</h3>
+      <p>
+        Machine-readable export containing full scan metadata, scores, and flat defect arrays with row numbers for ingestion into automated migration pipelines or data catalogs.
+      </p>
+    </section>
+
+    <!-- 10. Headless Batch / CLI Mode -->
+    <section id="sec-cli">
+      <h2>10. Headless Batch / CLI Mode</h2>
+
+      <h3>Basic Command Syntax</h3>
+      <pre><code>python batch_runner.py [options] DATASET [DATASET ...]</code></pre>
+
+      <h3>Common Command Examples</h3>
+      <pre><code># 1. Quick single dataset scan (interactive export format prompt)
+python batch_runner.py samples/customers_clean_100pct.csv
+
+# 2. Multi-dataset scan with automated Excel and HTML reports
+python batch_runner.py samples/customers_clean_100pct.csv samples/orders_related_to_customers.csv --excel --html
+
+# 3. Scan dataset using specific business profile and custom output folder
+python batch_runner.py samples/customers_faulty.csv --profile Customer_Master --output reports/ --excel --json
+
+# 4. Analyze Excel spreadsheet with worksheet selection (by index or sheet name)
+python batch_runner.py path/to/data.xlsx --sheet 0 --excel
+
+# 5. Non-interactive CI/CD build run (quiet console, reports disabled, relies on exit code)
+python batch_runner.py samples/customers_clean_100pct.csv --quiet --no-reports --no-db</code></pre>
+
+      <h3>Command-Line Options Reference</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Option / Flag</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>DATASET...</code></td>
+            <td>One or more CSV or Excel (<code>.xlsx</code>/<code>.xls</code>) files to analyze (positional).</td>
+          </tr>
+          <tr>
+            <td><code>--config, -c CONFIG</code></td>
+            <td>Path to YAML configuration file (defaults to <code>config/config.yaml</code> if present).</td>
+          </tr>
+          <tr>
+            <td><code>--profile, -p PROFILE</code></td>
+            <td>Mandatory fields profile name defined in configuration (e.g. <code>Customer_Master</code>).</td>
+          </tr>
+          <tr>
+            <td><code>--output, -o OUTPUT</code></td>
+            <td>Directory to save generated assessment reports (default: <code>reports</code>).</td>
+          </tr>
+          <tr>
+            <td><code>--db DB</code></td>
+            <td>Custom SQLite database path for scan persistence (default: <code>data/scanner.db</code>).</td>
+          </tr>
+          <tr>
+            <td><code>--no-db, --skip-db</code></td>
+            <td>Disable persisting scan findings to SQLite database.</td>
+          </tr>
+          <tr>
+            <td><code>--sheet SHEET</code></td>
+            <td>Excel sheet name or 0-based index to load when analyzing Excel files (default: 0 / first sheet).</td>
+          </tr>
+          <tr>
+            <td><code>--html</code></td>
+            <td>Generate standalone HTML assessment report.</td>
+          </tr>
+          <tr>
+            <td><code>--excel</code></td>
+            <td>Generate multi-sheet Excel (<code>.xlsx</code>) assessment report.</td>
+          </tr>
+          <tr>
+            <td><code>--json</code></td>
+            <td>Generate machine-readable JSON structured report.</td>
+          </tr>
+          <tr>
+            <td><code>--no-reports</code></td>
+            <td>Disable file-based report export entirely.</td>
+          </tr>
+          <tr>
+            <td><code>--quiet, -q</code></td>
+            <td>Suppress human-readable console progress and summary output. (Skips reports if format flags are omitted).</td>
+          </tr>
+          <tr>
+            <td><code>--version, -v</code></td>
+            <td>Show program version number and exit.</td>
+          </tr>
+          <tr>
+            <td><code>-h, --help</code></td>
+            <td>Show command-line help message and exit.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>Process Exit Codes</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Exit Code</th>
+            <th>Status</th>
+            <th>Meaning</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>0</code></td>
+            <td><strong>Success</strong></td>
+            <td>Analysis completed successfully (regardless of data quality findings).</td>
+          </tr>
+          <tr>
+            <td><code>1</code></td>
+            <td><strong>CLI Argument Error</strong></td>
+            <td>Invalid command-line argument syntax or missing dataset argument.</td>
+          </tr>
+          <tr>
+            <td><code>2</code></td>
+            <td><strong>Data / Config Error</strong></td>
+            <td>Dataset file not found, unreadable, or invalid YAML configuration syntax.</td>
+          </tr>
+          <tr>
+            <td><code>3</code></td>
+            <td><strong>Runtime Error</strong></td>
+            <td>Unexpected application or pipeline error occurred during execution.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- 11. Configuration Management -->
+    <section id="sec-config">
+      <h2>11. Configuration Management</h2>
+      <p>
+        The scanner cleanly separates end-user business rules from administrator technical parameters:
+      </p>
+
+      <h3>1. User Business Rules (<code>config/config.yaml</code>)</h3>
+      <p>
+        This file is intended for data analysts and migration specialists to define dataset-specific expectations:
+      </p>
+      <ul>
+        <li><strong>Mandatory Fields:</strong> Columns that must not contain empty or missing values.</li>
+        <li><strong>Duplicate Keys:</strong> Columns that uniquely identify a record (e.g. <code>Customer_ID</code>).</li>
+        <li><strong>Field Character Format Rules:</strong> Maps columns to built-in character validation presets (<code>email_format</code>, <code>alpha_numeric_only</code>, <code>numeric_only</code>, etc.).</li>
+        <li><strong>Configured Relationships:</strong> Explicit parent-child links between datasets for foreign-key validation.</li>
+      </ul>
+
+      <h3>2. Administrator Parameters (<code>config/admin_config.yaml</code>)</h3>
+      <div class="callout callout-warning">
+        <div class="callout-title">🔒 Administrator Settings Notice</div>
+        <p>
+          Administrator settings should only be changed by authorized users. Normal users do not need to modify this file.
+        </p>
+      </div>
+      <p>
+        Controls technical engine strictness, system limits, and algorithm parameters:
+      </p>
+      <ul>
+        <li><strong>Active Quality Checks:</strong> Master enable/disable toggles for check modules (<code>checks.enabled</code>).</li>
+        <li><strong>Scoring Weights &amp; Readiness Thresholds:</strong> Penalty deductions and readiness category score boundaries (<code>scoring</code>).</li>
+        <li><strong>Duplicate &amp; Null Severity Thresholds:</strong> Dataset percentage cutoffs triggering High vs. Medium severity (<code>duplicate_rules</code>, <code>null_rules</code>).</li>
+        <li><strong>Anomaly Symbols:</strong> Global characters flagged across text fields (<code>special_chars.anomaly_characters</code>: <code>$</code>, <code>@</code>, <code>#</code>, <code>%</code>, <code>&amp;</code>, <code>*</code>).</li>
+        <li><strong>Accepted Date Formats &amp; Column Hints:</strong> Canonical date parsing formats and column keyword hints (<code>date_rules</code>). Note that date rules are configured here, not in <code>config.yaml</code>.</li>
+        <li><strong>Pattern Rules &amp; Warning Limits:</strong> Pattern clustering parameters (<code>pattern_rules</code>) and memory warning limits for large datasets (<code>row_count_warning_threshold</code>).</li>
+      </ul>
+    </section>
+
+    <!-- 12. Automatic Rule Inference -->
+    <section id="sec-inference">
+      <h2>12. Automatic Rule Inference</h2>
+      <p>
+        When running without pre-configured rules, the scanner profiles column contents to infer high-confidence rules automatically:
+      </p>
+      <ul>
+        <li><strong>Mandatory Field Candidates:</strong> Identified through semantic naming patterns (e.g. <code>_id</code>, <code>_key</code>, <code>code</code>, <code>email</code>) and high fill rates.</li>
+        <li><strong>Record Identity Keys:</strong> Identified through 100% uniqueness, structural compactness, and key-like naming tokens.</li>
+        <li><strong>User Confirmation:</strong> In Desktop GUI mode, proposed mandatory fields are displayed in the confirmation dialog for user approval before activation.</li>
+        <li><strong>Preservation of Explicit Rules:</strong> Configured business rules in <code>config/config.yaml</code> always take precedence and are never overwritten by inferred rules.</li>
+      </ul>
+
+      <div class="callout callout-tip">
+        <div class="callout-title">💡 Deterministic Heuristic Inference</div>
+        <p>
+          Rule inference is driven by transparent statistical profiling and heuristic scoring rules. It does not use generative AI, machine learning models, or external cloud services.
+        </p>
+      </div>
+    </section>
+
+    <!-- 13. Scan History & Persistence -->
+    <section id="sec-history">
+      <h2>13. Scan History &amp; Persistence</h2>
+      <p>
+        By default, completed scans are recorded in the local SQLite database (<code>data/scanner.db</code>). Persistence can be disabled in Batch/CLI mode using <code>--no-db</code> or <code>--skip-db</code>.
+      </p>
+      <ul>
+        <li><strong>Historical Review:</strong> View past scan timestamps, record counts, scores, and issue volumes.</li>
+        <li><strong>Interactive Reloading:</strong> In GUI mode, double-click any historical entry to restore its findings into the dashboard.</li>
+        <li><strong>Re-Export Reports:</strong> Generate updated Excel, HTML, or JSON reports from historical scans at any time.</li>
+      </ul>
+
+      <div class="callout callout-tip">
+        <div class="callout-title">🔒 Privacy Notice</div>
+        <p>
+          Raw dataset rows are not stored in the scan-history database. The database stores only execution metadata, score summaries, and identified defect coordinates (such as row numbers and invalid key values).
+        </p>
+      </div>
+    </section>
+
+    <!-- 14. Troubleshooting Guide -->
+    <section id="sec-troubleshooting">
+      <h2>14. Troubleshooting Guide</h2>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Problem Observed</th>
+            <th>Probable Cause</th>
+            <th>Recommended Solution</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Application fails to launch</strong> (<code>No module named 'PySide6'</code>)</td>
+            <td>Virtual environment is inactive or dependencies are missing.</td>
+            <td>
+              Follow the complete setup sequence:
+              <br>1. Navigate to project root: <code>cd path/to/migration-dq-scanner</code>
+              <br>2. Activate virtual environment: <code>.\\.venv\\Scripts\\Activate.ps1</code> or <code>source .venv/bin/activate</code>
+              <br>3. Install dependencies: <code>python -m pip install -r requirements.txt</code>
+              <br>4. Launch application: <code>python main.py</code>
+            </td>
+          </tr>
+          <tr>
+            <td><strong>PowerShell script execution error</strong></td>
+            <td>PowerShell execution policy restricts running scripts on Windows.</td>
+            <td>Run <code>Set-ExecutionPolicy -Scope Process -ExecutionPolicy RemoteSigned</code> in PowerShell, or activate via Windows CMD using <code>.venv\\Scripts\\activate.bat</code>.</td>
+          </tr>
+          <tr>
+            <td><strong>Dataset fails to load</strong> (<code>File not found</code>)</td>
+            <td>Path is misspelled or file is locked by another program.</td>
+            <td>Verify the file path. In CLI mode, wrap paths containing spaces in quotation marks. Close the file if open in Excel.</td>
+          </tr>
+          <tr>
+            <td><strong>Unsupported file type error</strong></td>
+            <td>File format is not CSV or Excel.</td>
+            <td>Save your source data as <code>.csv</code> or <code>.xlsx</code> before importing.</td>
+          </tr>
+          <tr>
+            <td><strong>Excel workbook will not open</strong></td>
+            <td>File is password-protected or corrupted.</td>
+            <td>Open the file in Microsoft Excel, remove password encryption, and save as a standard <code>.xlsx</code> workbook.</td>
+          </tr>
+          <tr>
+            <td><strong>Configuration Error on startup</strong></td>
+            <td>YAML formatting error in <code>config.yaml</code> or <code>admin_config.yaml</code>.</td>
+            <td>Check YAML indentation (use spaces, not tabs). Ensure check names match valid tokens.</td>
+          </tr>
+          <tr>
+            <td><strong>CLI produces no report files</strong></td>
+            <td><code>--no-reports</code> was passed, or <code>--quiet</code> was run without format flags.</td>
+            <td>Specify explicit format flags (e.g. <code>--excel --html</code>) when running with <code>--quiet</code>, or omit <code>--no-reports</code>.</td>
+          </tr>
+          <tr>
+            <td><strong>CLI terminates with Exit Code 2</strong></td>
+            <td>Dataset path was invalid or configuration syntax was malformed.</td>
+            <td>Inspect terminal error output for the specific file path or YAML line number that failed.</td>
+          </tr>
+          <tr>
+            <td><strong>Readiness score is lower than expected</strong></td>
+            <td>Critical defects (missing mandatory fields or orphan foreign keys) were detected.</td>
+            <td>Inspect the Quality Issues and Relationship Integrity sections to review critical severity deductions.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- 15. Quick-Start Checklist -->
+    <section id="sec-quickstart">
+      <h2>15. Quick-Start Checklist</h2>
+
+      <div class="flow-grid">
+        <div class="flow-card">
+          <h4>Desktop GUI Quick Start (Fresh Setup &amp; Scan)</h4>
+          <ol>
+            <li><strong>Navigate to project:</strong> <code>cd path/to/migration-dq-scanner</code></li>
+            <li><strong>Create virtual environment:</strong> <code>python -m venv .venv</code> (first time only)</li>
+            <li><strong>Activate virtual environment:</strong> <code>.\\.venv\\Scripts\\Activate.ps1</code> or <code>source .venv/bin/activate</code></li>
+            <li><strong>Install dependencies:</strong> <code>python -m pip install -r requirements.txt</code></li>
+            <li><strong>Start application:</strong> <code>python main.py</code></li>
+            <li><strong>Add data:</strong> Click <strong>➕ Add CSV File</strong> or <strong>➕ Add Excel Workbook</strong>.</li>
+            <li><strong>Preview:</strong> Select dataset to view first 10 rows in preview grid.</li>
+            <li><strong>Run analysis:</strong> Click <strong>🚀 Run Data Quality Analysis</strong>.</li>
+            <li><strong>Confirm inferred fields:</strong> Review and click <strong>Proceed</strong> on inferred mandatory fields.</li>
+            <li><strong>Review results:</strong> Inspect Readiness Score, dimension meters, and issues table.</li>
+            <li><strong>Export reports:</strong> Select report formats and click <strong>📥 Generate &amp; Save Reports</strong>.</li>
+          </ol>
+        </div>
+
+        <div class="flow-card">
+          <h4>Headless Batch / CLI Quick Start</h4>
+          <ol>
+            <li><strong>Navigate:</strong> <code>cd path/to/migration-dq-scanner</code></li>
+            <li><strong>Activate:</strong> Activate virtual environment (<code>.\\.venv\\Scripts\\Activate.ps1</code> or <code>source .venv/bin/activate</code>).</li>
+            <li><strong>Execute Scan:</strong> Run the verified batch command:
+              <pre><code>python batch_runner.py samples/customers_clean_100pct.csv samples/orders_related_to_customers.csv --excel --html</code></pre>
+            </li>
+            <li><strong>Review Output:</strong> Check console summary for score and issue counts.</li>
+            <li><strong>Check Exit Code:</strong> Verify success status code <code>0</code>:
+              <pre><code># PowerShell:  $LASTEXITCODE
+# Windows CMD: %ERRORLEVEL%
+# Linux/macOS: echo $?</code></pre>
+            </li>
+            <li><strong>Open Reports:</strong> Open generated deliverables in the <code>reports/</code> directory.</li>
+          </ol>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+</body>
+</html>
+"""
+
+def generate_pdf():
+    """Convert HTML guide to PDF using Microsoft Edge headless."""
+    edge_paths = [
+        r"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe",
+        r"C:\Program Files\Microsoft\Edge\Application\msedge.exe",
+    ]
+    edge_exe = next((p for p in edge_paths if os.path.exists(p)), None)
+    if not edge_exe:
+        print("Warning: Microsoft Edge executable not found. Skipping PDF generation.")
+        return False
+
+    cmd = [
+        edge_exe,
+        "--headless=new",
+        "--disable-gpu",
+        "--run-all-compositor-stages-before-draw",
+        "--no-pdf-header-footer",
+        f"--print-to-pdf={PDF_PATH}",
+        str(HTML_PATH),
+    ]
+    try:
+        res = subprocess.run(cmd, capture_output=True, text=True, timeout=40)
+        if res.returncode == 0 and PDF_PATH.exists():
+            print(f"PDF successfully generated: {PDF_PATH} ({PDF_PATH.stat().st_size:,} bytes)")
+            return True
+        else:
+            print(f"Edge PDF generation returned code {res.returncode}: {res.stderr}")
+            return False
+    except Exception as exc:
+        print(f"Failed to generate PDF via Edge: {exc}")
+        return False
+
+def generate_readme():
+    """Create a concise README in docs/user-guide/ explaining the deliverables."""
+    readme_content = """# Data Quality Scanner V2.5 — User Guide Documentation
+
+This directory contains the official **User Guide** for Data Quality Scanner V2.5.
+
+## Deliverables
+
+1. **[Data_Quality_Scanner_V2.5_User_Guide.html](Data_Quality_Scanner_V2.5_User_Guide.html)** (Primary Guide)
+   - Practical, user-oriented enterprise user manual.
+   - Includes interactive sidebar navigation, clear step-by-step setup and GUI walkthrough, CLI command reference, comparison tables, and authentic application screenshots.
+   - Optimized with `@media print` rules for printing and pagination.
+
+2. **[Data_Quality_Scanner_V2.5_User_Guide.pdf](Data_Quality_Scanner_V2.5_User_Guide.pdf)** (Distribution PDF)
+   - Professional PDF generated directly from the HTML guide via Microsoft Edge headless rendering engine (`--headless=new --print-to-pdf`).
+   - Compact, high-readability layout targeting ~15–18 pages in standard print format.
+
+3. **[images/](images/)**
+   - High-resolution, authentic screenshots captured directly from the running Data Quality Scanner V2.5 application.
+
+## Verification Summary
+
+All instructions, GUI labels, CLI commands, configuration options, scoring principles, and report structures reflect the current V2.5 codebase:
+- **GUI Walkthrough:** Complete setup sequence (Steps 1–5: navigate to project, create venv, activate venv, install requirements, launch) and operational walkthrough (Steps 6–13) using actual button labels (e.g., *➕ Add CSV File*, *➕ Add Excel Workbook*, *🚀 Run Data Quality Analysis*, *Proceed*, *📥 Generate & Save Reports*).
+- **CLI Commands:** Verified against `batch_runner.py` argument parser, real flags (`--config`, `--profile`, `--output`, `--db`, `--no-db`, `--sheet`, `--html`, `--excel`, `--json`, `--no-reports`, `--quiet`, `--version`), and exit codes (`0`, `1`, `2`, `3`).
+- **Readiness Scoring:** Verified against `core/scoring/scorer.py` (clean data = 100, severity weights, volume scaling, readiness categories).
+- **8 Quality Checks:** Verified against `core/checks/`.
+- **Excel Report Structure:** Verified against `reports/excel_reporter.py` (Sheet 4 Issue Details table columns & AutoFilter `A1:H{last_row}`).
+"""
+    README_PATH.write_text(readme_content, encoding="utf-8")
+    print(f"README generated: {README_PATH}")
+
+def main():
+    GUIDE_DIR.mkdir(parents=True, exist_ok=True)
+    html_content = build_guide_html()
+    HTML_PATH.write_text(html_content, encoding="utf-8")
+    print(f"HTML guide generated: {HTML_PATH} ({HTML_PATH.stat().st_size:,} bytes)")
+
+    generate_pdf()
+    generate_readme()
+
+if __name__ == "__main__":
+    main()

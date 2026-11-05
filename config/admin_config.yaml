@@ -1,0 +1,120 @@
+# =============================================================================
+# Data Quality Scanner - Administrator Configuration (V3)
+# =============================================================================
+# Technical engine parameters, quality check toggles, severity scoring weights,
+# detection thresholds, and system limits.
+#
+# Normal users should edit business rules in config.yaml.
+# Administrators configure engine strictness and scoring calibration here.
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# 1. Active Quality Checks Master Toggle
+# -----------------------------------------------------------------------------
+checks:
+  enabled:
+    - duplicates
+    - nulls
+    - mandatory_fields
+    - whitespace
+    - special_chars
+    - patterns
+    - dates
+    - relationships
+
+# -----------------------------------------------------------------------------
+# 2. Migration Readiness Scoring & Issue Severity Weights
+# -----------------------------------------------------------------------------
+scoring:
+  severity_weights:
+    critical: 15.0   # Maximum penalty points for one critical issue
+    high: 8.0        # Maximum penalty points for one high-severity issue
+    medium: 3.0      # Maximum penalty points for one medium-severity issue
+    low: 1.0         # Maximum penalty points for one low-severity issue
+  readiness_thresholds:
+    ready: 90            # Minimum overall score (points) for Ready status
+    minor_cleansing: 75  # Minimum overall score (points) for Ready with Minor Cleansing status
+    needs_cleansing: 50  # Minimum overall score (points) for Needs Cleansing status (below 50 is Not Ready)
+
+# -----------------------------------------------------------------------------
+# 3. Duplicate Rate Severity Thresholds (% of dataset)
+# -----------------------------------------------------------------------------
+duplicate_rules:
+  thresholds:
+    high: 5.0        # Duplicate rate (%) at or above this value is High severity
+    medium: 1.0      # Duplicate rate (%) at or above this value is Medium severity
+
+# -----------------------------------------------------------------------------
+# 4. Null / Blank Severity Thresholds (% of column)
+# -----------------------------------------------------------------------------
+null_rules:
+  high_threshold: 20.0    # Null/blank rate (%) at or above this level is High severity
+  medium_threshold: 5.0   # Null/blank rate (%) at or above this level is Medium severity
+
+# -----------------------------------------------------------------------------
+# 5. Pattern Consistency Clustering Rules
+# -----------------------------------------------------------------------------
+pattern_rules:
+  min_cluster_size: 2          # Minimum repeated values needed to form a pattern cluster
+  max_cardinality_ratio: 0.95  # Skip pattern clustering when nearly all values are unique (unique/total ratio)
+  exclude_columns: []
+
+# -----------------------------------------------------------------------------
+# 6. Anomaly Character Scanning across Text Columns
+# -----------------------------------------------------------------------------
+special_chars:
+  anomaly_characters:
+    - "$"
+    - "@"
+    - "#"
+    - "%"
+    - "&"
+    - "*"
+
+# -----------------------------------------------------------------------------
+# 7. System Warning Thresholds
+# -----------------------------------------------------------------------------
+row_count_warning_threshold: 500_000
+
+
+# -----------------------------------------------------------------------------
+# 8. Accepted Date Formats & Column Detection Hints
+# -----------------------------------------------------------------------------
+date_rules:
+  accepted_formats:
+    - "%Y-%m-%d"
+    - "%m/%d/%Y"
+    - "%d-%m-%Y"
+    - "%d/%m/%Y"
+    - "%d %b %Y"
+    - "%d-%b-%Y"
+    - "%Y/%m/%d"
+    - "%m-%d-%Y"
+  column_hints:
+    - date
+    - _dt
+    - _at
+    - _on
+    - created
+    - updated
+    - modified
+    - birth
+    - expiry
+    - expire
+    - timestamp
+
+
+# -----------------------------------------------------------------------------
+# 9. Application & Dashboard Branding Configuration (V2.5)
+# -----------------------------------------------------------------------------
+branding:
+  title: "Data Quality Scanner V2.5"
+  description: "Pre-Migration Data Quality Assessment"
+  logo:
+    enabled: false
+    file: 
+  left_logos:
+    - enabled: false
+      file: 
+    - enabled: false
+      file: 

@@ -1,0 +1,35 @@
+# .dockerignore - Migration Data Quality Scanner v2.0
+
+# Version control
+.git/
+.gitignore
+
+# Python virtual environment and bytecode
+.venv/
+venv/
+env/
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Test, coverage, and cache artifacts
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Local SQLite databases (mounted via volume at runtime)
+data/*.db
+data/*.db-wal
+data/*.db-shm
+*.db
+
+# Generated reports (mounted via volume at runtime)
+reports/*.html
+reports/*.xlsx
+reports/*.json
+
+# IDE and OS metadata
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
