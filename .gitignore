@@ -92,9 +92,10 @@ logs/
 !*.example
 
 # ==============================================================================
-# Local / Excluded Documentation & Specifications
+# Local / Excluded Documentation, Assets & Specifications
 # ==============================================================================
 docs/
+assets/
 
 # ==============================================================================
 # Operating System Files

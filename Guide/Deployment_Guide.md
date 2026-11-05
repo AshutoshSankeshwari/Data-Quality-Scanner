@@ -36,8 +36,6 @@ Data-Quality-Scanner/
 │   ├── Deployment_Guide.md
 │   ├── User_Guide.html
 │   └── User_Guide.md
-├── assets/                  # Branding and company logos
-│   └── branding/
 ├── config/                  # Configuration files
 │   ├── config.yaml          # User business validation rules
 │   └── admin_config.yaml    # Admin thresholds and scoring weights
