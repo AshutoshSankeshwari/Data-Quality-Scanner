@@ -1,23 +1,34 @@
-# Data Quality Scanner (V3 Foundation) — User Guide
+# Data Quality Scanner — User Guide
 
 ## Overview
 
 The **Data Quality Scanner** automates Pre-Migration Analysis (PMA) on source datasets (CSV & Excel), detects quality anomalies, automatically inspects datasets to identify parent-child relationships, validates referential integrity across related datasets, calculates an explainable **Migration Readiness Score**, persists scan results in SQLite, and exports executive-ready assessment reports in HTML, Excel, and JSON formats.
 
-**V3 Foundation Features**:
+### Core Capabilities
 - **Dual-Layer Configuration**: User-facing business rules (`config/config.yaml`) are decoupled from technical engine parameters (`config/admin_config.yaml`).
 - **Simplified Dataset Definitions**: Users define dataset rules (`mandatory_fields` and `duplicate_keys`) using clean, intuitive YAML lists.
 - **Quality Dimension Filtering**: Issues are categorized into 6 standalone dimensions (**Completeness**, **Uniqueness**, **Validity**, **Consistency**, **Integrity**, **Cleanliness**) with interactive dropdown filtering.
 - **Autonomous Rule Inference & Confirmation**: The scanner profiles datasets and infers candidate rules, prompting for user confirmation before activating new mandatory fields in Desktop GUI mode.
+- **Deterministic Issue-Driven Readiness Scoring**: Calculated directly from detected quality issues based on severity deductions scaled by affected volume.
 
 ---
 
 ## 1. Quick Start
 
-### Installation
-Ensure Python 3.11+ is installed and dependencies are installed in your virtual environment:
+### Installation & Environment Setup
+Ensure Python 3.11+ is installed. Create and activate a virtual environment, then install runtime dependencies:
+
 ```powershell
+# Create virtual environment
+python -m venv .venv
+
+# Activate on Windows PowerShell
 .\.venv\Scripts\Activate.ps1
+
+# Activate on Linux/macOS
+# source .venv/bin/activate
+
+# Install dependencies
 pip install -r requirements.txt
 ```
 
@@ -143,4 +154,4 @@ Contains system strictness and scoring calibration parameters:
 
 ---
 
-*End of User Guide.*
+*For detailed operational installation and environment setup, see `Deployment_Guide.md` and `Deployment_Guide.html`.*

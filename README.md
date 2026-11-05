@@ -47,6 +47,15 @@ V3 Codebase Cleanup and Configuration Architecture is complete and verified:
 
 ## Quickstart
 
+> **Application Setup**: To set up the application environment and install dependencies, please follow the step-by-step instructions in the [Deployment Guide](Guide/Deployment_Guide.md) (or [HTML version](Guide/Deployment_Guide.html)) and [User Guide](Guide/User_Guide.md) located in the [`Guide/`](Guide/) folder.
+
+```bash
+# Setup Environment & Install Dependencies
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1    # On Linux/macOS: source .venv/bin/activate
+pip install -r requirements.txt
+```
+
 ### 1. Run the Desktop GUI
 ```bash
 python main.py
@@ -111,7 +120,7 @@ Data-Quality-Scanner/
 │   ├── products_normal.csv
 │   └── generate_samples.py
 ├── tests/                   # Complete pytest suite (210 tests passing)
-├── documentation/           # Deployment guide & user guide (HTML and Markdown)
+├── Guide/                   # Deployment guide & user guide (HTML and Markdown)
 ├── Dockerfile               # Production container definition
 ├── .dockerignore            # Docker context exclusions
 ├── .gitignore               # Repository exclusion rules
