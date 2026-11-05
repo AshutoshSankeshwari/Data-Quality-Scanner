@@ -287,7 +287,7 @@ class HeaderWidget(QFrame):
         """Update header title, description, and logos live from a BrandingConfig instance."""
         self.current_branding = branding
 
-        title_text = branding.title.strip() if branding.title else "Data Quality Scanner V2.5"
+        title_text = branding.title.strip() if branding.title else "Data Quality Scanner"
         self.title_label.setText(title_text)
 
         if branding.description and branding.description.strip():

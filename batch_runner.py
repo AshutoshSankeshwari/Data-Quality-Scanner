@@ -1,6 +1,6 @@
 """
 batch_runner.py
-Headless command-line execution interface for Data Quality Scanner v2.0.
+Headless command-line execution interface for Data Quality Scanner.
 
 Provides automated, non-interactive pre-migration data quality analysis,
 readiness scoring, referential integrity validation, report generation,
@@ -34,7 +34,7 @@ def create_parser() -> argparse.ArgumentParser:
     """Construct command-line argument parser for headless batch execution."""
     parser = argparse.ArgumentParser(
         prog="batch_runner.py",
-        description="Data Quality Scanner v2.0 — Headless Batch Analysis Runner",
+        description="Data Quality Scanner — Headless Batch Analysis Runner",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
@@ -118,7 +118,7 @@ Examples:
     parser.add_argument(
         "--version", "-v",
         action="version",
-        version="Data Quality Scanner v2.0 (Batch Mode)",
+        version="Data Quality Scanner (Batch Mode)",
     )
 
     return parser
@@ -265,7 +265,7 @@ def run_batch(argv: list[str] | None = None, input_func=input) -> int:
             repo = ScanRepository(db_path)
             repo.save_scan(
                 result,
-                app_version="2.0",
+                app_version=None,
                 config_hash=config_hash,
             )
         except Exception as e:
@@ -325,7 +325,7 @@ def run_batch(argv: list[str] | None = None, input_func=input) -> int:
 def _print_console_summary(result: AnalysisResult, report_paths: dict[str, Path]):
     """Print human-readable and automation-friendly summary to standard output."""
     print("=" * 60)
-    print("Data Quality Scanner V2 -- Batch Mode")
+    print("Data Quality Scanner -- Batch Mode")
     print("=" * 60)
 
     # Dataset details

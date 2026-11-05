@@ -48,11 +48,11 @@ _CONFIG_PATH = Path(__file__).parent.parent / "config" / "config.yaml"
 
 
 class MainWindow(QMainWindow):
-    """Single-page scrollable Data Quality Scanner (V2) with SQLite persistence."""
+    """Single-page scrollable Data Quality Scanner with SQLite persistence."""
 
     def __init__(self, db_path: str | Path | None = None):
         super().__init__()
-        self.setWindowTitle("Data Quality Scanner v2.0")
+        self.setWindowTitle("Data Quality Scanner")
         self.resize(1280, 900)
         self.setMinimumSize(1024, 700)
 

@@ -1,4 +1,4 @@
-# Data Quality Scanner (V3 Foundation)
+# Data Quality Scanner
 
 A lightweight, enterprise-ready Python desktop application and data-quality engine designed for **Pre-Migration Analysis (PMA)**. It profiles source datasets, detects quality anomalies across core check dimensions, automatically checks whether relationships exist between datasets, validates parent-child referential integrity, computes an explainable **Migration Readiness Score**, persists scan history to a local SQLite database, and exports executive-ready assessment reports.
 
@@ -16,7 +16,7 @@ A lightweight, enterprise-ready Python desktop application and data-quality engi
   - Pattern and naming consistency analysis (shape masks `AAA-999`)
   - Date validity & format consistency checks
   - Cross-dataset referential integrity & orphan detection
-- **Dual-Layer Configuration Architecture (V3)**:
+- **Dual-Layer Configuration Architecture**:
   - **User Business Rules (`config/config.yaml`)**: Simple dataset definitions (`mandatory_fields`, `duplicate_keys`), field-character rules using built-in presets without raw regex, accepted date formats, and referential relationships.
   - **Administrator Parameters (`config/admin_config.yaml`)**: Master check toggles (`checks.enabled`), scoring severity weights, readiness thresholds, detection limits, and anomaly characters.
 - **Quality Dimensions & Filtering**:
@@ -37,11 +37,11 @@ A lightweight, enterprise-ready Python desktop application and data-quality engi
 
 ## Project Status
 
-V3 Codebase Cleanup and Configuration Architecture is complete and verified:
+Codebase Cleanup and Configuration Architecture is complete and verified:
 - User business rules and admin parameters are cleanly decoupled.
 - Obsolete legacy configuration loaders, dead chart modules, duplicate scoring functions, and unused helper functions have been removed.
 - Dual-file configuration hashing is active.
-- The entire automated test suite (**210 tests**) passes with a 100% success rate.
+- The entire automated test suite (**271 tests**) passes with a 100% success rate.
 
 ---
 

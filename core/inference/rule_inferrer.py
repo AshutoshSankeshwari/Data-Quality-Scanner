@@ -1,11 +1,11 @@
 """
 core/inference/rule_inferrer.py
-Intelligent, profile-driven heuristic inference engine for V2.5.
+Intelligent, profile-driven heuristic inference engine.
 
 Automatically infers candidate mandatory fields and record-identity / duplicate keys
 from dataset profiling and generic column properties without hardcoded dataset rules.
 
-=== MANDATORY-FIELD INFERENCE (recalibrated V2.5) ===
+=== MANDATORY-FIELD INFERENCE ===
 
 Uses a five-phase scoring pipeline:
 
@@ -22,11 +22,11 @@ Core principles:
   - Phase 4 operational tokens are weighted negative evidence, not hard exclusions.
   - The Phase 5 gate caps non-semantic fields at Medium ceiling (0.44), regardless of data.
 
-=== IDENTITY-KEY INFERENCE (unchanged from V2) ===
+=== IDENTITY-KEY INFERENCE ===
 
 Uses separate, independent multi-signal scoring for record identity and composite-key search.
 Small-dataset safeguards, false-positive rejections, and bounded composite-key exploration
-are preserved exactly as implemented in V2.
+are preserved as standard engine behavior.
 """
 from __future__ import annotations
 import re
@@ -110,7 +110,7 @@ _OPTIONAL_TOKENS = {
     "misc", "promo",
 }
 
-# --- Identity inference token sets (unchanged from V2) ---
+# --- Identity inference token sets ---
 
 _STRONG_ID_TOKENS = {
     "id", "identifier", "code", "num", "number", "no", "key", "pk", "fk",
@@ -320,7 +320,7 @@ def infer_mandatory_fields(
             else:
                 reasons.append("Insufficient semantic anchor for High confidence; capped at Medium ceiling")
 
-        # Small-dataset safeguard on mandatory confidence (preserved from V2)
+        # Small-dataset safeguard on mandatory confidence
         if row_count < 10 and score > 0.55 and semantic_anchor < 0.35:
             score = 0.50
             reasons.append("Small sample (< 10 rows) limits statistical confidence without explicit strong ID semantics")
@@ -328,7 +328,7 @@ def infer_mandatory_fields(
         # Normalize and clamp
         confidence_score = round(max(0.0, min(1.0, score)), 2)
 
-        # Confidence tiers (thresholds unchanged from V2)
+        # Confidence tiers
         if confidence_score >= 0.70:
             confidence = "High"
             is_mandatory = True
@@ -389,7 +389,7 @@ def _apply_activatable_cap(
 
 
 # ---------------------------------------------------------------------------
-# Identity / Duplicate-Key Inference (unchanged from V2)
+# Identity / Duplicate-Key Inference
 # ---------------------------------------------------------------------------
 
 def _score_single_identity_candidate(
@@ -400,7 +400,6 @@ def _score_single_identity_candidate(
     Score a single column as an identity key candidate.
     Returns (score, reasons, is_rejected).
     Includes strict categorical/name rejections and small-sample safeguards.
-    THIS FUNCTION IS UNCHANGED FROM V2.
     """
     tokens = _tokenize_name(col.name)
     total_missing_pct = col.null_pct + col.blank_pct + col.whitespace_only_pct
@@ -488,7 +487,6 @@ def infer_identity_keys(
     Infer suggested and alternative identity keys using multi-signal heuristics.
     Includes bounded composite-key search among top K candidate columns and small-sample safeguards.
     Returns (suggested_key, alternative_keys, rejected_candidates).
-    THIS FUNCTION IS UNCHANGED FROM V2.
     """
     candidate_keys: list[InferredIdentityKey] = []
     rejected_candidates: list[dict] = []

@@ -1,5 +1,5 @@
 -- db/schema.sql
--- SQLite schema for Migration Data Quality Scanner V2
+-- SQLite schema for Migration Data Quality Scanner
 -- Star schema rooted at scans table; raw dataset rows are never stored.
 
 PRAGMA foreign_keys = ON;
@@ -9,7 +9,7 @@ CREATE TABLE IF NOT EXISTS scans (
     run_id TEXT UNIQUE NOT NULL,
     started_at TEXT NOT NULL,
     completed_at TEXT,
-    app_version TEXT DEFAULT '2.0.0',
+    app_version TEXT,
     config_hash TEXT,
     overall_score REAL,
     readiness_category TEXT,

@@ -1,5 +1,5 @@
-# Dockerfile - Migration Data Quality Scanner v2.0
-# Standardized, reproducible container environment for Data Quality Scanner v2
+# Dockerfile - Data Quality Scanner
+# Standardized, reproducible container environment for Data Quality Scanner
 
 FROM python:3.12-slim
 

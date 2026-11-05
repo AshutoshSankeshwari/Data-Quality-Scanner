@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Data Quality Scanner V2.5 — Deployment Guide</title>
+  <title>Data Quality Scanner — Deployment Guide</title>
   <style>
     /* ── Root Design System ─────────────────────────────────────────── */
     :root {
@@ -640,7 +640,7 @@
     <div class="sidebar-brand">
       <h2>Data Quality Scanner</h2>
       <p>Deployment &amp; Operations Manual</p>
-      <span class="badge">V2.5 DEPLOYMENT</span>
+      <span class="badge">DEPLOYMENT GUIDE</span>
     </div>
     <ul class="nav-list">
       <li class="nav-item"><a class="nav-link" href="#sec-purpose">1. Purpose and Scope</a></li>
@@ -674,10 +674,10 @@
     <!-- Cover Page Banner -->
     <div class="cover-card">
       <span class="cover-tag">Official Operational Standard</span>
-      <h1 class="cover-title">Data Quality Scanner V2.5</h1>
+      <h1 class="cover-title">Data Quality Scanner</h1>
       <div class="cover-subtitle">Deployment Guide — Installation, Configuration, Validation &amp; Operational Setup</div>
       <div class="cover-meta">
-        <div class="meta-item"><strong>Target Version:</strong> V2.5</div>
+        <div class="meta-item"><strong>Target Environment:</strong> Production Standalone</div>
         <div class="meta-item"><strong>Validated Platform:</strong> Windows 10/11 (64-bit)</div>
         <div class="meta-item"><strong>Runtime:</strong> Python 3.11+ (64-bit)</div>
         <div class="meta-item"><strong>Audience:</strong> Deployment Engineers, Data Engineers, IT Administrators</div>
@@ -688,13 +688,13 @@
     <section id="sec-purpose">
       <h2>1. Purpose and Scope</h2>
       <p>
-        This guide defines the authoritative, repeatable engineering procedure for packaging, installing, configuring, validating, maintaining, and supporting <strong>Data Quality Scanner V2.5</strong> on target host machines.
+        This guide defines the authoritative, repeatable engineering procedure for packaging, installing, configuring, validating, maintaining, and supporting <strong>Data Quality Scanner</strong> on target host machines.
       </p>
       
       <h3>Scope of This Document</h3>
       <ul>
         <li><strong>Covered:</strong> Host preparation, Python virtual environment configuration, offline/online dependency resolution, configuration governance, static asset deployment, SQLite persistence lifecycle, desktop GUI launcher setup, headless CLI script automation, formal smoke testing, version update procedures, backup/restore sequences, emergency rollback, and deployment troubleshooting.</li>
-        <li><strong>Not Covered:</strong> End-user analytical navigation, interpretation of specific business defects, manual data remediation workflows, or authoring custom ETL migration scripts. For operational end-user procedures, consult the companion <em>Data Quality Scanner V2.5 User Guide</em>.</li>
+        <li><strong>Not Covered:</strong> End-user analytical navigation, interpretation of specific business defects, manual data remediation workflows, or authoring custom ETL migration scripts. For operational end-user procedures, consult the companion <em>Data Quality Scanner User Guide</em>.</li>
       </ul>
 
       <div class="callout callout-info">
@@ -706,7 +706,7 @@
 
       <h3>Architectural Boundary Notice</h3>
       <p>
-        Data Quality Scanner V2.5 is implemented and validated exclusively as an <strong>isolated, local standalone application</strong>. The following architectures are <em>Not applicable to the current V2.5 deployment model</em>:
+        Data Quality Scanner is implemented and validated exclusively as an <strong>isolated, local standalone application</strong>. The following architectures are <em>Not applicable to the current DEPLOYMENT GUIDE model</em>:
       </p>
       <ul>
         <li>Containerization frameworks (Docker, Kubernetes, Podman).</li>
@@ -725,8 +725,8 @@
       </p>
 
       <figure>
-        <img src="images/deployment_architecture.svg" alt="Data Quality Scanner V2.5 Local Deployment Architecture">
-        <figcaption>Figure 2.1: Data Quality Scanner V2.5 single-node local deployment model and filesystem boundaries.</figcaption>
+        <img src="images/deployment_architecture.svg" alt="Data Quality Scanner Local Deployment Architecture">
+        <figcaption>Figure 2.1: Data Quality Scanner single-node local deployment model and filesystem boundaries.</figcaption>
       </figure>
 
       <h3>Key Architectural Characteristics</h3>
@@ -748,7 +748,7 @@
           </tr>
           <tr>
             <td><strong>Cloud &amp; Server Independence</strong></td>
-            <td>Normal V2.5 execution does not require a remote application server or cloud service. Where outbound package installation is restricted, dependencies can be supplied through an approved offline/internal package source.</td>
+            <td>Normal execution does not require a remote application server or cloud service. Where outbound package installation is restricted, dependencies can be supplied through an approved offline/internal package source.</td>
           </tr>
           <tr>
             <td><strong>Persistence Layer</strong></td>
@@ -829,7 +829,7 @@
     <section id="sec-package">
       <h2>4. Deployment Package Contents</h2>
       <p>
-        When assembling a production deployment archive (e.g. <code>migration-dq-scanner-v2.5.zip</code>), deployment engineers must strictly control which files are packaged.
+        When assembling a production deployment archive (e.g. <code>data-quality-scanner.zip</code>), deployment engineers must strictly control which files are packaged.
       </p>
 
       <table>
@@ -1154,7 +1154,7 @@ print('SUCCESS: All runtime dependencies imported cleanly.')"</code></pre>
     <section id="sec-config">
       <h2>8. Application Configuration</h2>
       <p>
-        Data Quality Scanner V2.5 enforces a strict, two-tier configuration governance model:
+        Data Quality Scanner enforces a strict, two-tier configuration governance model:
       </p>
 
       <div class="callout callout-warning">
@@ -1248,7 +1248,7 @@ print('SUCCESS: All runtime dependencies imported cleanly.')"</code></pre>
       <h3>Branding Configuration Schema</h3>
       <p>Configured in <code>config/admin_config.yaml</code> under the <code>branding:</code> key:</p>
       <pre><code>branding:
-  title: "Data Quality Scanner V2.5"
+  title: "Data Quality Scanner"
   description: "Pre-Migration Data Quality Assessment"
   logo:
     enabled: true
@@ -1275,7 +1275,7 @@ print('SUCCESS: All runtime dependencies imported cleanly.')"</code></pre>
     <section id="sec-db">
       <h2>10. Database and Persistence Setup</h2>
       <p>
-        Data Quality Scanner V2.5 includes an embedded SQLite database engine to maintain a historical log of completed scans.
+        Data Quality Scanner includes an embedded SQLite database engine to maintain a historical log of completed scans.
       </p>
 
       <h3>Default Database Location &amp; Initialization</h3>
@@ -1352,7 +1352,7 @@ python main.py</code></pre>
         To allow business users to launch the GUI without interacting with PowerShell or virtual environment commands, create a batch launcher file named <code>run_scanner.bat</code> in the application root:
       </p>
       <pre><code>@echo off
-title Data Quality Scanner V2.5
+title Data Quality Scanner
 cd /d "%~dp0"
 call .venv\Scripts\activate.bat
 start "" pythonw main.py
@@ -1363,7 +1363,7 @@ exit</code></pre>
 
       <h3>GUI Operational Verification</h3>
       <ul>
-        <li>Main window opens centered on screen with title <code>Data Quality Scanner V2.5</code>.</li>
+        <li>Main window opens centered on screen with title <code>Data Quality Scanner</code>.</li>
         <li>Top header renders the application title, description, and corporate logo.</li>
         <li>Dataset Upload section is active with <code>➕ Add CSV File</code> and <code>➕ Add Excel Workbook</code> buttons.</li>
       </ul>
@@ -1935,7 +1935,7 @@ python -m pip install -r requirements.txt</code></pre>
 
       <h3>User &amp; Administrator Permissions Model</h3>
       <p>
-        Data Quality Scanner V2.5 distinguishes normal user/operator permissions from administrative rights according to the principle of least privilege:
+        Data Quality Scanner distinguishes normal user/operator permissions from administrative rights according to the principle of least privilege:
       </p>
       <ul>
         <li><strong>Normal Users / Operators:</strong>
@@ -1957,7 +1957,7 @@ python -m pip install -r requirements.txt</code></pre>
       <h3>Data Governance &amp; Confidentiality</h3>
       <ul>
         <li><strong>In-Memory Processing:</strong> Source datasets are processed in application memory. Raw dataset rows are not stored in the SQLite scan-history database.</li>
-        <li><strong>Network Independence:</strong> Normal V2.5 execution does not require a remote application server or cloud service. Where outbound package installation is restricted, dependencies can be supplied through an approved offline/internal package source.</li>
+        <li><strong>Network Independence:</strong> Normal execution does not require a remote application server or cloud service. Where outbound package installation is restricted, dependencies can be supplied through an approved offline/internal package source.</li>
         <li><strong>Report Access Controls:</strong> Generated reports may contain actual field values and should therefore be stored in access-controlled locations according to organizational policy.</li>
       </ul>
     </section>
@@ -2020,8 +2020,8 @@ python -m pip install -r requirements.txt</code></pre>
       <h3>Handover Deliverables Package</h3>
       <ol>
         <li><strong>Application Directory:</strong> The target-host deployment directory containing the installed application files, target-host <code>.venv</code>, configuration, and required static assets. (Note: The distribution archive provided to the target host does not include the developer's <code>.venv</code>; it is created fresh on the target host).</li>
-        <li><strong>User Guide:</strong> <code>docs/user-guide/Data_Quality_Scanner_V2.5_User_Guide.pdf</code> (for business analysts and daily operators).</li>
-        <li><strong>Deployment Guide:</strong> <code>docs/deployment-guide/Data_Quality_Scanner_V2.5_Deployment_Guide.pdf</code> (this operational engineering standard).</li>
+        <li><strong>User Guide:</strong> <code>Guide/User_Guide.html</code> (for business analysts and daily operators).</li>
+        <li><strong>Deployment Guide:</strong> <code>Guide/Deployment_Guide.html</code> (this operational engineering standard).</li>
         <li><strong>Configuration Map:</strong> Documentation of who owns <code>config/config.yaml</code> (data analysts) vs. <code>config/admin_config.yaml</code> (system administrator).</li>
         <li><strong>Smoke Test Results:</strong> Signed copy of the Deployment Validation &amp; Smoke Test results and Post-Deployment Verification checklist.</li>
       </ol>
@@ -2056,3 +2056,4 @@ python -m pip install -r requirements.txt</code></pre>
 
 </body>
 </html>
+

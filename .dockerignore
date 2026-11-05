@@ -1,4 +1,4 @@
-# .dockerignore - Migration Data Quality Scanner v2.0
+# .dockerignore - Data Quality Scanner
 
 # Version control
 .git/

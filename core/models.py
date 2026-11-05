@@ -447,7 +447,7 @@ class LeftLogoConfig:
 @dataclass
 class BrandingConfig:
     """Typed branding configuration loaded from config/admin_config.yaml."""
-    title: str = "Data Quality Scanner V2.5"
+    title: str = "Data Quality Scanner"
     description: str = "Pre-Migration Data Quality Assessment"
     logo_enabled: bool = True
     logo_file: str = "assets/branding/company_logo.png"

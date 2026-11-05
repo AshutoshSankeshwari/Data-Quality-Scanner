@@ -39,8 +39,7 @@ def test_gui_main_window_instantiation(qtbot):
     window = MainWindow()
     qtbot.addWidget(window)
 
-    assert "Data Quality Scanner" in window.windowTitle()
-    assert "v2" in window.windowTitle().lower()
+    assert window.windowTitle() == "Data Quality Scanner"
 
     # All V2 section widgets must exist
     assert hasattr(window, "upload_section")

@@ -1,6 +1,6 @@
 """
 gui/sections/upload_section.py
-Section B — Dataset Upload widget for the V2 single-page layout.
+Section B — Dataset Upload widget for the single-page layout.
 
 Handles CSV and multi-sheet Excel loading. Emits `datasets_changed`
 to the MainWindow. No navigation signals.

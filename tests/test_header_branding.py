@@ -83,7 +83,7 @@ def test_branding_config_defaults_when_file_missing(tmp_path):
     non_existent = tmp_path / "non_existent_admin_config.yaml"
     b = load_branding_config(non_existent)
 
-    assert b.title == "Data Quality Scanner V2.5"
+    assert b.title == "Data Quality Scanner"
     assert b.description == "Pre-Migration Data Quality Assessment"
     assert b.logo_enabled is True
     assert b.logo_file == "assets/branding/company_logo.png"
@@ -446,7 +446,7 @@ def test_header_widget_title_and_description_rendering(qtbot):
     """HeaderWidget renders configured title and description with correct styling."""
     b = BrandingConfig(
         title="Custom Brand Title",
-        description="Custom Subtitle · V2.5",
+        description="Custom Subtitle",
         logo_enabled=False,
     )
     header = HeaderWidget(branding=b)
@@ -454,7 +454,7 @@ def test_header_widget_title_and_description_rendering(qtbot):
     qtbot.addWidget(header)
 
     assert header.title_label.text() == "Custom Brand Title"
-    assert header.sub_label.text() == "Custom Subtitle · V2.5"
+    assert header.sub_label.text() == "Custom Subtitle"
     assert header.sub_label.isVisible()
 
 
@@ -538,7 +538,7 @@ def test_header_widget_missing_logo_does_not_crash(qtbot):
     qtbot.addWidget(header)
 
     assert not header.logo_label.isVisible()
-    assert header.title_label.text() == "Data Quality Scanner V2.5"
+    assert header.title_label.text() == "Data Quality Scanner"
 
 
 def test_header_widget_svg_format_and_aspect_ratio(qtbot, tmp_path):
@@ -775,7 +775,7 @@ def test_category_a_left_logos_loaded_from_yaml(tmp_path):
     cfg_file = tmp_path / "admin_config_full.yaml"
     cfg_file.write_text("""
 branding:
-  title: "Data Quality Scanner V2.5"
+  title: "Data Quality Scanner"
   description: "Pre-Migration Data Quality Assessment"
   logo:
     enabled: true
@@ -788,7 +788,7 @@ branding:
       file: "assets/branding/c2_logo.png"
 """, encoding="utf-8")
     b = load_branding_config(cfg_file)
-    assert b.title == "Data Quality Scanner V2.5"
+    assert b.title == "Data Quality Scanner"
     assert b.description == "Pre-Migration Data Quality Assessment"
     assert b.logo_enabled is True
     assert b.logo_file == "assets/branding/company_logo.png"
@@ -804,7 +804,7 @@ branding:
     cfg_no_left = tmp_path / "admin_config_no_left.yaml"
     cfg_no_left.write_text("""
 branding:
-  title: "Data Quality Scanner V2.5"
+  title: "Data Quality Scanner"
   logo:
     enabled: true
     file: "assets/branding/company_logo.png"
@@ -910,7 +910,7 @@ def test_category_c_mathematical_title_centering(qtbot, tmp_path):
     _create_test_png(right_logo, width=60, height=40)
 
     b = BrandingConfig(
-        title="Data Quality Scanner V2.5",
+        title="Data Quality Scanner",
         description="Pre-Migration Data Quality Assessment",
         logo_file=str(right_logo),
         logo_enabled=True,

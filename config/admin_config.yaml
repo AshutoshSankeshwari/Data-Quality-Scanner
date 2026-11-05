@@ -1,5 +1,5 @@
 # =============================================================================
-# Data Quality Scanner - Administrator Configuration (V3)
+# Data Quality Scanner - Administrator Configuration
 # =============================================================================
 # Technical engine parameters, quality check toggles, severity scoring weights,
 # detection thresholds, and system limits.
@@ -105,10 +105,10 @@ date_rules:
 
 
 # -----------------------------------------------------------------------------
-# 9. Application & Dashboard Branding Configuration (V2.5)
+# 9. Application & Dashboard Branding Configuration
 # -----------------------------------------------------------------------------
 branding:
-  title: "Data Quality Scanner V2.5"
+  title: "Data Quality Scanner"
   description: "Pre-Migration Data Quality Assessment"
   logo:
     enabled: false

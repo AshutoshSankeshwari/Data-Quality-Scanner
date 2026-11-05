@@ -240,7 +240,7 @@ def test_batch_runner_subprocess_cli_invocation(tmp_path):
 
     proc = subprocess.run(cmd, input="2\n", capture_output=True, text=True)
     assert proc.returncode == 0
-    assert "Data Quality Scanner V2 -- Batch Mode" in proc.stdout
+    assert "Data Quality Scanner -- Batch Mode" in proc.stdout
     assert "Scan completed successfully." in proc.stdout
     assert (out_dir / "customers_clean_100pct_data_quality_report.json").exists()
     assert not (out_dir / "customers_clean_100pct_data_quality_report.html").exists()

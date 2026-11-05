@@ -1,6 +1,6 @@
 """
 core/inference/models.py
-Data models for the V2.5 Automatic Rule Inference prototype.
+Data models for the Automatic Rule Inference engine.
 All models are pure in-memory dataclasses used for evaluation and recommendation.
 """
 from __future__ import annotations

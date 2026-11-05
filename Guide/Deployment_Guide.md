@@ -167,3 +167,4 @@ To remove or reset the deployment:
    Remove-Item -Recurse -Force .venv, data/scanner.db
    ```
 3. To reinstall cleanly, repeat Step 2 and Step 3 from Section 4.
+

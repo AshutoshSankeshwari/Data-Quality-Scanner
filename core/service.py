@@ -257,7 +257,7 @@ class AnalysisService:
         )
 
         # ----------------------------------------------------------------
-        # Step 1b: Automatic Business-Rule Inference & Rule Resolution (V2.5)
+        # Step 1b: Automatic Business-Rule Inference & Rule Resolution
         # ----------------------------------------------------------------
         _progress("Inferring business rules…", 10)
         for profile in dataset_profiles:
@@ -269,7 +269,7 @@ class AnalysisService:
         primary_df = datasets[0][1] if datasets else pd.DataFrame()
         primary_inferred = result.inferred_rules[0] if result.inferred_rules else None
 
-        # Rule Resolution (V2.5): Configured rules are retained and supplemented with High-confidence inference
+        # Rule Resolution: Configured rules are retained and supplemented with High-confidence inference
         effective_mandatory_fields, effective_duplicate_keys = resolve_effective_rules(
             cfg, primary_inferred, mandatory_confirmation_callback=mandatory_confirmation_callback
         )

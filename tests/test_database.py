@@ -91,7 +91,7 @@ def test_save_and_retrieve_scan(temp_db_path):
     datasets = [("customers_faulty", df_cust), ("orders_related_to_customers", df_ord)]
 
     result = AnalysisService().run(datasets, cfg)
-    scan_id = repo.save_scan(result, app_version="2.0.0", config_hash="test_hash_123")
+    scan_id = repo.save_scan(result, config_hash="test_hash_123")
 
     assert scan_id is not None
     assert scan_id > 0
