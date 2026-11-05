@@ -111,7 +111,7 @@ Data-Quality-Scanner/
 │   ├── products_normal.csv
 │   └── generate_samples.py
 ├── tests/                   # Complete pytest suite (210 tests passing)
-├── docs/                    # Technical design, user & deployment guides, PRD specifications
+├── documentation/           # Deployment guide & user guide (HTML and Markdown)
 ├── Dockerfile               # Production container definition
 ├── .dockerignore            # Docker context exclusions
 ├── .gitignore               # Repository exclusion rules
